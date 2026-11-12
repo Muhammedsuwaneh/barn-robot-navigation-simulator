@@ -1,20 +1,16 @@
 import sys
-from pathlib import Path
 
-from PyQt6.QtGui import QGuiApplication
-from PyQt6.QtQml import QQmlApplicationEngine
+from app.application import create_application
 
 
 def main() -> int:
-	app = QGuiApplication(sys.argv)
-	engine = QQmlApplicationEngine()
-	qml_file = Path(__file__).resolve().parent / "views" / "main.qml"
-
-	engine.load(qml_file.as_uri())
-	if not engine.rootObjects():
+	try:
+		application, engine, view_model = create_application()
+	except (OSError, RuntimeError) as error:
+		print(f"Unable to start the application: {error}", file=sys.stderr)
 		return 1
 
-	return app.exec()
+	return application.exec()
 
 
 if __name__ == "__main__":

@@ -1,0 +1,1 @@
+"""Qt view-models exposed to the QML interface."""
