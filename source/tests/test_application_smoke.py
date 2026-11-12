@@ -30,6 +30,11 @@ class ApplicationSmokeTests(unittest.TestCase):
 		load_button = self.window.findChild(QObject, "loadImageButton")
 		self.assertIsNotNone(load_button)
 		self.assertTrue(load_button.property("enabled"))
+		generate_grid_button = self.window.findChild(QObject, "generateGridButton")
+		self.assertIsNotNone(generate_grid_button)
+		self.assertFalse(generate_grid_button.property("enabled"))
+		grid_preview = self.window.findChild(QObject, "occupancyGridPreview")
+		self.assertIsNotNone(grid_preview)
 
 		for object_name in ("algorithmSelector", "runNavigationButton"):
 			with self.subTest(control=object_name):

@@ -7,6 +7,8 @@ import numpy as np
 from PyQt6.QtCore import QObject, pyqtProperty, pyqtSignal, pyqtSlot
 from PyQt6.QtCore import QUrl
 
+from models.occupancy_grid import OccupancyGrid, OccupancyGridError
+from services.image_processing.occupancy_grid import binary_image_to_grid
 from services.image_processing.preprocessing import (
 	ImageProcessingError,
 	ProcessingOptions,
@@ -19,6 +21,7 @@ class NavigationViewModel(QObject):
 	activeSectionChanged = pyqtSignal()
 	imageChanged = pyqtSignal()
 	processingChanged = pyqtSignal()
+	gridChanged = pyqtSignal()
 	statusChanged = pyqtSignal()
 	errorChanged = pyqtSignal()
 
@@ -27,10 +30,16 @@ class NavigationViewModel(QObject):
 		self._active_section = "workspace"
 		self._options = ProcessingOptions()
 		self._image: np.ndarray | None = None
+		self._processed_image: np.ndarray | None = None
 		self._image_path: Path | None = None
+		self._occupancy_grid: OccupancyGrid | None = None
+		self._grid_cell_size_px = 8
+		self._obstacle_threshold_percent = 50
 		self._preview_directory = tempfile.TemporaryDirectory(prefix="ai-navigation-")
 		self._preview_revision = 0
 		self._processed_preview_path = Path(self._preview_directory.name) / "processed-0.png"
+		self._grid_preview_revision = 0
+		self._grid_preview_path = Path(self._preview_directory.name) / "occupancy-grid-0.png"
 		self._status_message = "Ready. Load a PNG, JPG, or JPEG environment image."
 		self._error_message = ""
 
@@ -40,7 +49,7 @@ class NavigationViewModel(QObject):
 
 	@pyqtProperty(str, constant=True)
 	def phaseLabel(self) -> str:
-		return "PHASE 03 / IMAGE PREPROCESSING"
+		return "PHASE 04 / OCCUPANCY GRID"
 
 	@pyqtProperty(str, notify=statusChanged)
 	def statusMessage(self) -> str:
@@ -133,6 +142,54 @@ class NavigationViewModel(QObject):
 	def lightPixelsAreObstacles(self, value: bool) -> None:
 		self._update_options(light_pixels_are_obstacles=bool(value))
 
+	@pyqtProperty(bool, notify=gridChanged)
+	def gridReady(self) -> bool:
+		return self._occupancy_grid is not None
+
+	@pyqtProperty(int, notify=gridChanged)
+	def gridCellSizePx(self) -> int:
+		return self._grid_cell_size_px
+
+	@gridCellSizePx.setter
+	def gridCellSizePx(self, value: int) -> None:
+		self._update_grid_options(cell_size_px=int(value))
+
+	@pyqtProperty(int, notify=gridChanged)
+	def obstacleThresholdPercent(self) -> int:
+		return self._obstacle_threshold_percent
+
+	@obstacleThresholdPercent.setter
+	def obstacleThresholdPercent(self, value: int) -> None:
+		self._update_grid_options(obstacle_threshold_percent=int(value))
+
+	@pyqtProperty(int, notify=gridChanged)
+	def gridRows(self) -> int:
+		return self._occupancy_grid.rows if self._occupancy_grid else 0
+
+	@pyqtProperty(int, notify=gridChanged)
+	def gridColumns(self) -> int:
+		return self._occupancy_grid.columns if self._occupancy_grid else 0
+
+	@pyqtProperty(int, notify=gridChanged)
+	def gridOccupiedCount(self) -> int:
+		return self._occupancy_grid.occupied_count if self._occupancy_grid else 0
+
+	@pyqtProperty(int, notify=gridChanged)
+	def gridFreeCount(self) -> int:
+		return self._occupancy_grid.free_count if self._occupancy_grid else 0
+
+	@pyqtProperty(str, notify=gridChanged)
+	def gridDimensions(self) -> str:
+		if self._occupancy_grid is None:
+			return "--"
+		return f"{self._occupancy_grid.rows} rows x {self._occupancy_grid.columns} columns"
+
+	@pyqtProperty(str, notify=gridChanged)
+	def occupancyGridPreviewUrl(self) -> str:
+		if self._occupancy_grid is None:
+			return ""
+		return QUrl.fromLocalFile(str(self._grid_preview_path)).toString()
+
 	@pyqtProperty(str, notify=activeSectionChanged)
 	def activeSection(self) -> str:
 		return self._active_section
@@ -158,10 +215,39 @@ class NavigationViewModel(QObject):
 			return
 
 		self._image = image
+		self._processed_image = processed
 		self._image_path = image_path.resolve()
+		self._occupancy_grid = None
 		self._error_message = ""
 		self._status_message = f"Loaded {self._image_path.name} · {self.imageDimensions}"
 		self.imageChanged.emit()
+		self.gridChanged.emit()
+		self.statusChanged.emit()
+		self.errorChanged.emit()
+
+	@pyqtSlot()
+	def generateOccupancyGrid(self) -> None:
+		if self._processed_image is None:
+			self._set_error("Load an image before generating an occupancy grid.")
+			return
+		try:
+			grid = binary_image_to_grid(
+				self._processed_image,
+				cell_size_px=self._grid_cell_size_px,
+				obstacle_threshold_percent=self._obstacle_threshold_percent,
+			)
+			self._write_grid_preview(grid)
+		except (OccupancyGridError, OSError, cv2.error) as error:
+			self._set_error(str(error))
+			return
+
+		self._occupancy_grid = grid
+		self._error_message = ""
+		self._status_message = (
+			f"Grid generated: {grid.rows} x {grid.columns} cells · "
+			f"{grid.occupied_count} occupied · {grid.free_count} free."
+		)
+		self.gridChanged.emit()
 		self.statusChanged.emit()
 		self.errorChanged.emit()
 
@@ -189,18 +275,90 @@ class NavigationViewModel(QObject):
 			try:
 				processed = preprocess_image(self._image, options)
 				self._write_processed_preview(processed)
-			except (ImageProcessingError, OSError, cv2.error) as error:
+				grid = None
+				if self._occupancy_grid is not None:
+					grid = binary_image_to_grid(
+						processed,
+						cell_size_px=self._grid_cell_size_px,
+						obstacle_threshold_percent=self._obstacle_threshold_percent,
+					)
+					self._write_grid_preview(grid)
+			except (ImageProcessingError, OccupancyGridError, OSError, cv2.error) as error:
 				self._set_error(str(error))
 				return
 
 		self._options = options
+		if self._image is not None:
+			self._processed_image = processed
+			if self._occupancy_grid is not None:
+				self._occupancy_grid = grid
 		self._error_message = ""
 		if self._image is not None:
 			self._status_message = "Preview updated. Black = obstacle; white = free space."
 			self.imageChanged.emit()
+			if self._occupancy_grid is not None:
+				self.gridChanged.emit()
 		self.processingChanged.emit()
 		self.statusChanged.emit()
 		self.errorChanged.emit()
+
+	def _update_grid_options(self, **changes: int) -> None:
+		cell_size_px = changes.get("cell_size_px", self._grid_cell_size_px)
+		obstacle_threshold_percent = changes.get(
+			"obstacle_threshold_percent",
+			self._obstacle_threshold_percent,
+		)
+		if not 1 <= cell_size_px <= 512:
+			self._set_error("Grid cell size must be between 1 and 512 pixels.")
+			return
+		if not 1 <= obstacle_threshold_percent <= 100:
+			self._set_error("Obstacle threshold must be between 1 and 100 percent.")
+			return
+
+		grid = self._occupancy_grid
+		if self._processed_image is not None and grid is not None:
+			try:
+				grid = binary_image_to_grid(
+					self._processed_image,
+					cell_size_px=cell_size_px,
+					obstacle_threshold_percent=obstacle_threshold_percent,
+				)
+				self._write_grid_preview(grid)
+			except (OccupancyGridError, OSError, cv2.error) as error:
+				self._set_error(str(error))
+				return
+
+		self._grid_cell_size_px = cell_size_px
+		self._obstacle_threshold_percent = obstacle_threshold_percent
+		if grid is not self._occupancy_grid:
+			self._occupancy_grid = grid
+			self._status_message = f"Grid updated: {grid.rows} x {grid.columns} cells."
+			self.statusChanged.emit()
+		self.gridChanged.emit()
+
+	def _write_grid_preview(self, grid: OccupancyGrid) -> None:
+		image = np.where(grid.cells, 42, 242).astype(np.uint8)
+		encoded, buffer = cv2.imencode(".png", image)
+		if not encoded:
+			raise OccupancyGridError("Unable to encode the occupancy-grid preview.")
+		preview_directory = Path(self._preview_directory.name)
+		next_revision = self._grid_preview_revision + 1
+		next_path = preview_directory / f"occupancy-grid-{next_revision}.png"
+		temporary_path = next_path.with_suffix(".tmp")
+		try:
+			temporary_path.write_bytes(buffer.tobytes())
+			temporary_path.replace(next_path)
+		except OSError:
+			temporary_path.unlink(missing_ok=True)
+			raise
+
+		previous_path = self._grid_preview_path
+		self._grid_preview_path = next_path
+		self._grid_preview_revision = next_revision
+		try:
+			previous_path.unlink(missing_ok=True)
+		except OSError:
+			pass
 
 	def _write_processed_preview(self, image: np.ndarray) -> None:
 		encoded, buffer = cv2.imencode(".png", image)

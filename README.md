@@ -1,8 +1,8 @@
 # AI-Based Robot Navigation Simulator
 
-## Phase 03: Image Preprocessing
+## Phase 04: Occupancy-Grid Generation
 
-The application loads local PNG, JPG, and JPEG environment images and displays the original beside an OpenCV binary preview. Fixed and adaptive thresholding, morphology, and obstacle polarity can be adjusted live. Pathfinding is not implemented yet.
+The application loads local PNG, JPG, and JPEG environment images, previews the original and OpenCV-processed binary image, and generates a separate occupancy grid. Thresholding and grid-resolution controls update the previews; pathfinding is not implemented yet.
 
 ### Requirements
 
@@ -21,7 +21,7 @@ On macOS or Linux, activate the environment with `source .venv/bin/activate` ins
 
 ### Run
 
-From the project directory, with the environment activated:
+From the `source` directory, with the environment activated:
 
 ```powershell
 python main.py
@@ -38,4 +38,4 @@ $env:QT_QPA_PLATFORM = "offscreen"
 python -m unittest discover -s tests -v
 ```
 
-See [Phase 03 image preprocessing](source/docs/phase_03_image_preprocessing.md) for image conventions and processing behavior.
+See [Phase 04 occupancy-grid conventions](source/docs/phase_04_occupancy_grid.md) for the cell encoding, coordinate system, and mixed-pixel rule.

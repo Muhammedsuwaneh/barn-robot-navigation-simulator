@@ -133,6 +133,9 @@ Item {
                         imageSource: root.viewModel.processedPreviewUrl
                         emptyMessage: "The thresholded result will appear here."
                     }
+                    GridPreviewPane {
+                        viewModel: root.viewModel
+                    }
                 }
 
                 RowLayout {
@@ -159,8 +162,8 @@ Item {
 
         Rectangle {
             Layout.fillWidth: true
-            Layout.preferredHeight: root.width >= 1050 ? 170 : 230
-            Layout.minimumHeight: root.width >= 1050 ? 160 : 220
+            Layout.preferredHeight: root.width >= 1100 ? 230 : 290
+            Layout.minimumHeight: root.width >= 1100 ? 220 : 280
             radius: 6
             color: "#FFFFFF"
             border.color: "#DDE4DE"
@@ -194,7 +197,7 @@ Item {
                 GridLayout {
                     Layout.fillWidth: true
                     Layout.fillHeight: true
-                    columns: root.width >= 1050 ? 4 : 2
+                    columns: root.width >= 1100 ? 3 : 2
                     columnSpacing: 18
                     rowSpacing: 8
 
@@ -354,6 +357,97 @@ Item {
                                 font.pixelSize: 9
                                 onClicked: root.viewModel.resetProcessing()
                             }
+                        }
+                    }
+
+                    ColumnLayout {
+                        Layout.fillWidth: true
+                        spacing: 5
+                        Text {
+                            text: "GRID RESOLUTION"
+                            color: "#657269"
+                            font.family: "Bahnschrift"
+                            font.pixelSize: 8
+                            font.bold: true
+                            font.letterSpacing: 0.4
+                        }
+                        RowLayout {
+                            Layout.fillWidth: true
+                            spacing: 8
+                            ColumnLayout {
+                                Layout.fillWidth: true
+                                spacing: 2
+                                Text { text: "CELL SIZE · PX"; color: "#87928A"; font.family: "Bahnschrift"; font.pixelSize: 7 }
+                                SpinBox {
+                                    objectName: "gridCellSizeInput"
+                                    Layout.fillWidth: true
+                                    from: 1
+                                    to: 512
+                                    value: root.viewModel.gridCellSizePx
+                                    enabled: root.viewModel.hasImage
+                                    onValueModified: root.viewModel.gridCellSizePx = value
+                                }
+                            }
+                            ColumnLayout {
+                                Layout.fillWidth: true
+                                spacing: 2
+                                Text { text: "OBSTACLE · %"; color: "#87928A"; font.family: "Bahnschrift"; font.pixelSize: 7 }
+                                SpinBox {
+                                    objectName: "obstacleThresholdInput"
+                                    Layout.fillWidth: true
+                                    from: 1
+                                    to: 100
+                                    value: root.viewModel.obstacleThresholdPercent
+                                    enabled: root.viewModel.hasImage
+                                    onValueModified: root.viewModel.obstacleThresholdPercent = value
+                                }
+                            }
+                        }
+                    }
+
+                    ColumnLayout {
+                        Layout.fillWidth: true
+                        spacing: 5
+                        Text {
+                            text: "GRID GENERATION"
+                            color: "#657269"
+                            font.family: "Bahnschrift"
+                            font.pixelSize: 8
+                            font.bold: true
+                            font.letterSpacing: 0.4
+                        }
+                        Button {
+                            id: generateGridButton
+                            objectName: "generateGridButton"
+                            Layout.fillWidth: true
+                            Layout.preferredHeight: 34
+                            text: root.viewModel.gridReady ? "Regenerate grid" : "Generate occupancy grid"
+                            enabled: root.viewModel.hasImage
+                            font.family: "Bahnschrift"
+                            font.pixelSize: 9
+                            font.bold: true
+                            onClicked: root.viewModel.generateOccupancyGrid()
+                            background: Rectangle {
+                                radius: 4
+                                color: generateGridButton.enabled
+                                    ? (generateGridButton.hovered ? "#236548" : "#174D3A")
+                                    : "#A8B8AE"
+                            }
+                            contentItem: Text {
+                                text: generateGridButton.text
+                                color: "#FFFFFF"
+                                horizontalAlignment: Text.AlignHCenter
+                                verticalAlignment: Text.AlignVCenter
+                                font: generateGridButton.font
+                            }
+                        }
+                        Text {
+                            Layout.fillWidth: true
+                            text: "Mixed cells are occupied at or above the selected percentage."
+                            color: "#78847C"
+                            wrapMode: Text.WordWrap
+                            font.family: "Bahnschrift"
+                            font.pixelSize: 8
                         }
                     }
                 }
