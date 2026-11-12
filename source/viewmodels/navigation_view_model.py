@@ -169,6 +169,10 @@ class NavigationViewModel(QObject):
 	def resetProcessing(self) -> None:
 		self._replace_options(ProcessingOptions())
 
+	@pyqtSlot()
+	def cleanup(self) -> None:
+		self._preview_directory.cleanup()
+
 	def _update_options(self, **changes: object) -> None:
 		try:
 			options = replace(self._options, **changes)

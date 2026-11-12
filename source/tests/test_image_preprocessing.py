@@ -90,6 +90,7 @@ class ImagePreprocessingTests(unittest.TestCase):
 			image_path.write_bytes(buffer.tobytes())
 
 			view_model = NavigationViewModel()
+			self.addCleanup(view_model.cleanup)
 			view_model.loadImage(str(image_path))
 			self.assertTrue(view_model.hasImage)
 			self.assertEqual(view_model.imageDimensions, "9 x 9 px")

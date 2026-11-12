@@ -17,6 +17,7 @@ class ApplicationSmokeTests(unittest.TestCase):
 	@classmethod
 	def tearDownClass(cls) -> None:
 		cls.window.close()
+		cls.view_model.cleanup()
 		cls.engine.deleteLater()
 		cls.application.processEvents()
 		super().tearDownClass()

@@ -20,7 +20,9 @@ def create_application(
 
 	engine = QQmlApplicationEngine()
 	view_model = NavigationViewModel()
+	view_model.setParent(engine)
 	engine.setInitialProperties({"navigationViewModel": view_model})
+	application.aboutToQuit.connect(view_model.cleanup)
 
 	qml_file = Path(__file__).resolve().parent.parent / "views" / "main.qml"
 	if not qml_file.is_file():
