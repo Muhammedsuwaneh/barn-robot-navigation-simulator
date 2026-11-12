@@ -1,2 +1,1 @@
-# ai-factory-safety-monitor
-AI-Based Industrial Safety Monitoring System
+AI-Based Robot Navigation Simulator
