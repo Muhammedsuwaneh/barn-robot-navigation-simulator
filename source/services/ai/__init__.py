@@ -1,0 +1,1 @@
+"""Classical search algorithms over occupancy grids."""

@@ -8,6 +8,9 @@ ApplicationWindow {
     id: window
     objectName: "mainWindow"
     required property var navigationViewModel
+    required property var barnViewModel
+    readonly property var activeViewModel: navigationViewModel.activeSection === "barn"
+        ? barnViewModel : navigationViewModel
     visible: true
     width: 1440
     height: 900
@@ -144,25 +147,21 @@ ApplicationWindow {
                     }
 
                     NavigationItem {
+                        objectName: "customImagesNavigation"
                         Layout.fillWidth: true
-                        label: "Navigation"
+                        label: "Custom images"
                         indexLabel: "01"
                         selected: window.navigationViewModel.activeSection === "workspace"
                         onClicked: window.navigationViewModel.selectSection("workspace")
                     }
 
                     NavigationItem {
+                        objectName: "barnLibraryNavigation"
                         Layout.fillWidth: true
-                        label: "Map library"
+                        label: "BARN library"
                         indexLabel: "02"
-                        enabled: false
-                    }
-
-                    NavigationItem {
-                        Layout.fillWidth: true
-                        label: "Run history"
-                        indexLabel: "03"
-                        enabled: false
+                        selected: window.navigationViewModel.activeSection === "barn"
+                        onClicked: window.navigationViewModel.selectSection("barn")
                     }
 
                     Item { Layout.fillHeight: true }
@@ -210,411 +209,56 @@ ApplicationWindow {
                 Layout.margins: 24
                 spacing: 18
 
-                ImageProcessingPanel {
+                StackLayout {
                     Layout.fillWidth: true
                     Layout.fillHeight: true
-                    viewModel: window.navigationViewModel
-                    onLoadImageRequested: imageDialog.open()
-                }
+                    currentIndex: window.navigationViewModel.activeSection === "barn" ? 1 : 0
 
-                RowLayout {
-                    visible: false
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: 58
-                    spacing: 12
-
-                    ColumnLayout {
-                        spacing: 3
-                        Text {
-                            text: "Navigation workspace"
-                            color: "#19251E"
-                            font.family: window.font.family
-                            font.pixelSize: 23
-                            font.bold: true
-                        }
-                        Text {
-                            text: "STATIC ENVIRONMENT / PATH PLANNING"
-                            color: "#738078"
-                            font.family: window.font.family
-                            font.pixelSize: 10
-                            font.letterSpacing: 1
-                        }
+                    ImageProcessingPanel {
+                        objectName: "customImagesPage"
+                        viewModel: window.navigationViewModel
+                        onComparisonRequested: comparisonDialog.open()
+                        onLoadImageRequested: imageDialog.open()
                     }
 
-                    Item { Layout.fillWidth: true }
-
-                    Text {
-                        text: window.navigationViewModel.statusMessage
-                        color: "#78847C"
-                        font.family: window.font.family
-                        font.pixelSize: 11
-                    }
-                }
-
-                RowLayout {
-                    visible: false
-                    Layout.fillWidth: true
-                    Layout.fillHeight: true
-                    spacing: 16
-
-                    Rectangle {
-                        Layout.fillWidth: true
-                        Layout.fillHeight: true
-                        Layout.minimumWidth: 440
-                        radius: 7
-                        color: "#FFFFFF"
-                        border.color: "#DDE4DE"
-                        border.width: 1
-
-                        ColumnLayout {
-                            anchors.fill: parent
-                            anchors.margins: 14
-                            spacing: 12
-
-                            RowLayout {
-                                Layout.fillWidth: true
-                                Text {
-                                    text: "ENVIRONMENT VIEW"
-                                    color: "#45534A"
-                                    font.family: window.font.family
-                                    font.pixelSize: 10
-                                    font.bold: true
-                                    font.letterSpacing: 1
-                                }
-                                Item { Layout.fillWidth: true }
-                                Text {
-                                    text: "GRID / 4-CONNECTED"
-                                    color: "#849088"
-                                    font.family: window.font.family
-                                    font.pixelSize: 9
-                                    font.letterSpacing: 0.6
-                                }
-                            }
-
-                            Rectangle {
-                                Layout.fillWidth: true
-                                Layout.fillHeight: true
-                                radius: 4
-                                clip: true
-                                color: "#15221D"
-
-                                Canvas {
-                                    id: mapGrid
-                                    anchors.fill: parent
-                                    onPaint: {
-                                        var context = getContext("2d")
-                                        context.clearRect(0, 0, width, height)
-                                        context.strokeStyle = "#26362F"
-                                        context.lineWidth = 1
-                                        for (var x = 0; x <= width; x += 32) {
-                                            context.beginPath()
-                                            context.moveTo(x, 0)
-                                            context.lineTo(x, height)
-                                            context.stroke()
-                                        }
-                                        for (var y = 0; y <= height; y += 32) {
-                                            context.beginPath()
-                                            context.moveTo(0, y)
-                                            context.lineTo(width, y)
-                                            context.stroke()
-                                        }
-                                    }
-                                    onWidthChanged: requestPaint()
-                                    onHeightChanged: requestPaint()
-                                }
-
-                                ColumnLayout {
-                                    anchors.centerIn: parent
-                                    spacing: 11
-
-                                    Rectangle {
-                                        Layout.alignment: Qt.AlignHCenter
-                                        Layout.preferredWidth: 48
-                                        Layout.preferredHeight: 48
-                                        radius: 24
-                                        color: "#20342B"
-                                        border.color: "#385246"
-                                        Text {
-                                            anchors.centerIn: parent
-                                            text: "+"
-                                            color: "#91B5A0"
-                                            font.family: window.font.family
-                                            font.pixelSize: 23
-                                            font.weight: Font.Light
-                                        }
-                                    }
-                                    Text {
-                                        Layout.alignment: Qt.AlignHCenter
-                                        text: "No environment loaded"
-                                        color: "#E5ECE7"
-                                        font.family: window.font.family
-                                        font.pixelSize: 15
-                                        font.bold: true
-                                    }
-                                    Text {
-                                        Layout.alignment: Qt.AlignHCenter
-                                        text: "Map rendering will be available in a later phase."
-                                        color: "#98A89E"
-                                        font.family: window.font.family
-                                        font.pixelSize: 11
-                                    }
-                                }
-
-                                Rectangle {
-                                    anchors.left: parent.left
-                                    anchors.top: parent.top
-                                    anchors.margins: 12
-                                    width: 66
-                                    height: 24
-                                    radius: 3
-                                    color: "#24362D"
-                                    Text {
-                                        anchors.centerIn: parent
-                                        text: "NO MAP"
-                                        color: "#A8B9AE"
-                                        font.family: window.font.family
-                                        font.pixelSize: 9
-                                        font.bold: true
-                                        font.letterSpacing: 0.7
-                                    }
-                                }
-                            }
-
-                            RowLayout {
-                                Layout.fillWidth: true
-                                spacing: 20
-                                Text {
-                                    text: "SOURCE  NONE"
-                                    color: "#77837B"
-                                    font.family: window.font.family
-                                    font.pixelSize: 9
-                                    font.letterSpacing: 0.6
-                                }
-                                Text {
-                                    text: "DIMENSIONS  --"
-                                    color: "#77837B"
-                                    font.family: window.font.family
-                                    font.pixelSize: 9
-                                    font.letterSpacing: 0.6
-                                }
-                                Item { Layout.fillWidth: true }
-                                Text {
-                                    text: "OFFLINE"
-                                    color: "#438261"
-                                    font.family: window.font.family
-                                    font.pixelSize: 9
-                                    font.bold: true
-                                    font.letterSpacing: 0.7
-                                }
-                            }
-                        }
-                    }
-
-                    Rectangle {
-                        Layout.fillHeight: true
-                        Layout.preferredWidth: 304
-                        Layout.minimumWidth: 280
-                        radius: 7
-                        color: "#FFFFFF"
-                        border.color: "#DDE4DE"
-                        border.width: 1
-
-                        ColumnLayout {
-                            anchors.fill: parent
-                            anchors.margins: 18
-                            spacing: 13
-
-                            RowLayout {
-                                Layout.fillWidth: true
-                                Text {
-                                    text: "RUN CONFIGURATION"
-                                    color: "#35443B"
-                                    font.family: window.font.family
-                                    font.pixelSize: 10
-                                    font.bold: true
-                                    font.letterSpacing: 1
-                                }
-                                Item { Layout.fillWidth: true }
-                                Text {
-                                    text: "LOCKED"
-                                    color: "#9A6A32"
-                                    font.family: window.font.family
-                                    font.pixelSize: 9
-                                    font.bold: true
-                                    font.letterSpacing: 0.8
-                                }
-                            }
-
-                            Rectangle { Layout.fillWidth: true; Layout.preferredHeight: 1; color: "#E8ECE9" }
-
-                            Text {
-                                text: "ENVIRONMENT IMAGE"
-                                color: "#657269"
-                                font.family: window.font.family
-                                font.pixelSize: 9
-                                font.bold: true
-                                font.letterSpacing: 0.7
-                            }
-
-                            Button {
-                                id: loadMapButton
-                                objectName: "loadMapButton"
-                                Layout.fillWidth: true
-                                Layout.preferredHeight: 40
-                                enabled: false
-                                text: "Load environment image"
-                                font.family: window.font.family
-                                font.pixelSize: 11
-                                background: Rectangle {
-                                    radius: 4
-                                    color: "#F1F4F1"
-                                    border.color: "#DDE4DE"
-                                }
-                                contentItem: Text {
-                                    text: loadMapButton.text
-                                    color: "#8B958E"
-                                    horizontalAlignment: Text.AlignHCenter
-                                    verticalAlignment: Text.AlignVCenter
-                                    font: loadMapButton.font
-                                }
-                            }
-
-                            Text {
-                                Layout.fillWidth: true
-                                text: "Image import is not part of this phase."
-                                color: "#909A93"
-                                font.family: window.font.family
-                                font.pixelSize: 10
-                                wrapMode: Text.WordWrap
-                            }
-
-                            Rectangle { Layout.fillWidth: true; Layout.preferredHeight: 1; color: "#E8ECE9" }
-
-                            Text {
-                                text: "SEARCH ALGORITHM"
-                                color: "#657269"
-                                font.family: window.font.family
-                                font.pixelSize: 9
-                                font.bold: true
-                                font.letterSpacing: 0.7
-                            }
-
-                            ComboBox {
-                                objectName: "algorithmSelector"
-                                Layout.fillWidth: true
-                                Layout.preferredHeight: 38
-                                enabled: false
-                                model: ["Select an algorithm"]
-                                font.family: window.font.family
-                                font.pixelSize: 11
-                            }
-
-                            Text {
-                                text: "Start and goal"
-                                color: "#657269"
-                                font.family: window.font.family
-                                font.pixelSize: 9
-                                font.bold: true
-                                font.letterSpacing: 0.7
-                            }
-
-                            RowLayout {
-                                Layout.fillWidth: true
-                                spacing: 10
-                                ColumnLayout {
-                                    Layout.fillWidth: true
-                                    spacing: 5
-                                    Text { text: "START"; color: "#87928A"; font.family: window.font.family; font.pixelSize: 9; font.bold: true }
-                                    TextField {
-                                        Layout.fillWidth: true
-                                        enabled: false
-                                        placeholderText: "Not set"
-                                        font.family: window.font.family
-                                        font.pixelSize: 11
-                                    }
-                                }
-                                ColumnLayout {
-                                    Layout.fillWidth: true
-                                    spacing: 5
-                                    Text { text: "GOAL"; color: "#87928A"; font.family: window.font.family; font.pixelSize: 9; font.bold: true }
-                                    TextField {
-                                        Layout.fillWidth: true
-                                        enabled: false
-                                        placeholderText: "Not set"
-                                        font.family: window.font.family
-                                        font.pixelSize: 11
-                                    }
-                                }
-                            }
-
-                            Item { Layout.fillHeight: true }
-
-                            Button {
-                                id: runNavigationButton
-                                objectName: "runNavigationButton"
-                                Layout.fillWidth: true
-                                Layout.preferredHeight: 42
-                                enabled: false
-                                text: "Run navigation"
-                                font.family: window.font.family
-                                font.pixelSize: 12
-                                font.bold: true
-                                background: Rectangle {
-                                    radius: 4
-                                    color: "#A8B8AE"
-                                }
-                                contentItem: Text {
-                                    text: runNavigationButton.text
-                                    color: "#FFFFFF"
-                                    horizontalAlignment: Text.AlignHCenter
-                                    verticalAlignment: Text.AlignVCenter
-                                    font: runNavigationButton.font
-                                }
-                            }
-
-                            Text {
-                                Layout.fillWidth: true
-                                text: "Navigation execution becomes available after search is implemented."
-                                color: "#909A93"
-                                horizontalAlignment: Text.AlignHCenter
-                                wrapMode: Text.WordWrap
-                                font.family: window.font.family
-                                font.pixelSize: 9
-                            }
-                        }
-                    }
-                }
-
-                RowLayout {
-                    visible: false
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: 88
-                    spacing: 12
-
-                    MetricCard {
-                        Layout.fillWidth: true
-                        label: "EXPANDED NODES"
-                        value: "--"
-                        detail: "No run data"
-                        accent: "#54856A"
-                    }
-                    MetricCard {
-                        Layout.fillWidth: true
-                        label: "PATH LENGTH"
-                        value: "--"
-                        detail: "No route available"
-                        accent: "#B38343"
-                    }
-                    MetricCard {
-                        Layout.fillWidth: true
-                        label: "ELAPSED TIME"
-                        value: "--"
-                        detail: "No run data"
-                        accent: "#5C7F8B"
+                    BarnLibraryPage {
+                        objectName: "barnLibraryPage"
+                        viewModel: window.barnViewModel
+                        onComparisonRequested: comparisonDialog.open()
+                        onDirectoryRequested: barnFolderDialog.open()
                     }
                 }
             }
         }
+    }
+
+    FolderDialog {
+        id: barnFolderDialog
+        objectName: "barnFolderDialog"
+        title: "Select BARN dataset folder (or grid_files / cspace_files)"
+        onAccepted: window.barnViewModel.scanBarnDirectory(selectedFolder.toString())
+    }
+
+    ComparisonDialog {
+        id: comparisonDialog
+        objectName: "comparisonDialog"
+        parent: Overlay.overlay
+        viewModel: window.activeViewModel
+        onExportRequested: function(format) {
+            comparisonExportDialog.exportFormat = format
+            comparisonExportDialog.open()
+        }
+    }
+
+    FileDialog {
+        id: comparisonExportDialog
+        objectName: "comparisonExportDialog"
+        property string exportFormat: "csv"
+        title: "Export comparison to a new file"
+        fileMode: FileDialog.SaveFile
+        defaultSuffix: exportFormat
+        nameFilters: exportFormat === "csv" ? ["CSV files (*.csv)"] : ["JSON files (*.json)"]
+        onAccepted: window.activeViewModel.exportComparison(selectedFile.toString(), exportFormat)
     }
 
     FileDialog {

@@ -17,6 +17,15 @@ from viewmodels.navigation_view_model import NavigationViewModel
 
 
 class ImagePreprocessingTests(unittest.TestCase):
+	def test_configuration_rejects_invalid_numeric_and_boolean_types(self) -> None:
+		for name in ("threshold", "block_size", "adaptive_c", "kernel_size"):
+			for value in (True, 3.5, "3"):
+				with self.subTest(name=name, value=value), self.assertRaises(ImageProcessingError):
+					ProcessingOptions(**{name: value})
+		for name in ("otsu", "adaptive", "light_pixels_are_obstacles"):
+			with self.subTest(name=name), self.assertRaises(ImageProcessingError):
+				ProcessingOptions(**{name: 1})
+
 	def setUp(self) -> None:
 		self.image = np.full((9, 9), 255, dtype=np.uint8)
 		self.image[:, :4] = 0
@@ -27,15 +36,22 @@ class ImagePreprocessingTests(unittest.TestCase):
 		self.assertTrue(np.array_equal(to_grayscale(color), self.image))
 
 	def test_fixed_threshold_marks_dark_pixels_as_obstacles(self) -> None:
-		processed = preprocess_image(self.image, ProcessingOptions(threshold=120))
+		processed = preprocess_image(self.image, ProcessingOptions(threshold=120, otsu=False))
 		self.assertEqual(processed[4, 1], 0)
 		self.assertEqual(processed[4, 7], 255)
 		self.assertEqual(set(np.unique(processed)), {0, 255})
 
+	def test_default_otsu_threshold_separates_obstacles_without_fixed_threshold_tuning(self) -> None:
+		image = np.full((32, 32), 205, dtype=np.uint8)
+		image[:, :16] = 45
+		processed = preprocess_image(image)
+		self.assertTrue(np.all(processed[5:27, 4:12] == 0))
+		self.assertTrue(np.all(processed[5:27, 20:28] == 255))
+
 	def test_light_obstacle_interpretation_inverts_output(self) -> None:
 		processed = preprocess_image(
 			self.image,
-			ProcessingOptions(threshold=120, light_pixels_are_obstacles=True),
+			ProcessingOptions(threshold=120, otsu=False, light_pixels_are_obstacles=True),
 		)
 		self.assertEqual(processed[4, 1], 255)
 		self.assertEqual(processed[4, 7], 0)
@@ -44,7 +60,7 @@ class ImagePreprocessingTests(unittest.TestCase):
 		gradient = np.tile(np.arange(9, dtype=np.uint8) * 28, (9, 1))
 		processed = preprocess_image(
 			gradient,
-			ProcessingOptions(adaptive=True, block_size=5),
+			ProcessingOptions(otsu=False, adaptive=True, block_size=5),
 		)
 		self.assertEqual(processed.shape, gradient.shape)
 		self.assertEqual(set(np.unique(processed)), {0, 255})

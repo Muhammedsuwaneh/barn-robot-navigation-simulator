@@ -17,6 +17,7 @@ class ImageProcessingError(ValueError):
 @dataclass(frozen=True)
 class ProcessingOptions:
 	threshold: int = 128
+	otsu: bool = True
 	adaptive: bool = False
 	block_size: int = 11
 	adaptive_c: int = 2
@@ -25,6 +26,15 @@ class ProcessingOptions:
 	light_pixels_are_obstacles: bool = False
 
 	def __post_init__(self) -> None:
+		for name in ("threshold", "block_size", "adaptive_c", "kernel_size"):
+			value = getattr(self, name)
+			if isinstance(value, bool) or not isinstance(value, int):
+				raise ImageProcessingError(f"{name} must be an integer.")
+		for name in ("otsu", "adaptive", "light_pixels_are_obstacles"):
+			if not isinstance(getattr(self, name), bool):
+				raise ImageProcessingError(f"{name} must be Boolean.")
+		if self.otsu and self.adaptive:
+			raise ImageProcessingError("Otsu and adaptive thresholding cannot be enabled together.")
 		if not 0 <= self.threshold <= 255:
 			raise ImageProcessingError("Threshold must be between 0 and 255.")
 		if self.block_size < 3 or self.block_size % 2 == 0:
@@ -87,6 +97,14 @@ def preprocess_image(image: np.ndarray, options: ProcessingOptions | None = None
 			cv2.THRESH_BINARY,
 			settings.block_size,
 			settings.adaptive_c,
+		)
+	elif settings.otsu:
+		smoothed = cv2.GaussianBlur(grayscale, (3, 3), 0)
+		_, binary = cv2.threshold(
+			smoothed,
+			0,
+			255,
+			cv2.THRESH_BINARY | cv2.THRESH_OTSU,
 		)
 	else:
 		_, binary = cv2.threshold(

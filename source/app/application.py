@@ -10,8 +10,7 @@ from PyQt6.QtQml import QQmlApplicationEngine
 from viewmodels.navigation_view_model import NavigationViewModel
 
 
-def create_application(
-	argv: Sequence[str] | None = None,
+def create_application(argv: Sequence[str] | None = None,
 ) -> tuple[QGuiApplication, QQmlApplicationEngine, NavigationViewModel]:
 	os.environ.setdefault("QT_QUICK_CONTROLS_STYLE", "Basic")
 	application = QGuiApplication(list(argv) if argv is not None else sys.argv)
@@ -21,8 +20,11 @@ def create_application(
 	engine = QQmlApplicationEngine()
 	view_model = NavigationViewModel()
 	view_model.setParent(engine)
-	engine.setInitialProperties({"navigationViewModel": view_model})
+	barn_view_model = NavigationViewModel()
+	barn_view_model.setParent(engine)
+	engine.setInitialProperties({"navigationViewModel": view_model, "barnViewModel": barn_view_model})
 	application.aboutToQuit.connect(view_model.cleanup)
+	application.aboutToQuit.connect(barn_view_model.cleanup)
 
 	qml_file = Path(__file__).resolve().parent.parent / "views" / "main.qml"
 	if not qml_file.is_file():

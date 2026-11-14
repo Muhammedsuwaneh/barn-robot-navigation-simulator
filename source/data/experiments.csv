@@ -1,0 +1,66 @@
+record_id,timestamp_utc,map_identifier,dataset_source,grid_rows,grid_columns,start_row,start_column,goal_row,goal_column,algorithm,parameters,success,success_rate,path_length,path_cost,execution_time_ms,nodes_expanded,peak_frontier_size
+63ec1c4c-0420-4ab4-a410-b1713b47d430,2026-11-13T18:28:11.258022+00:00,selection-grid,local_image,2,2,0,1,1,1,BFS,{},True,,1,1,0.0481,1,1
+d0e37830-970b-4a38-b7e3-62e4fc33427e,2026-11-13T18:28:11.478880+00:00,bfs-environment,local_image,2,2,0,1,1,1,BFS,{},True,,1,1,0.0402,1,1
+55505ee5-7999-4d06-b3ca-932dab5ee5d6,2026-11-13T18:28:11.511141+00:00,bfs-environment,local_image,2,2,0,1,1,1,DFS,{},True,,1,1,0.0474,1,1
+40110d94-03a8-4af5-97c6-0d50d3e10261,2026-11-13T18:28:11.543222+00:00,bfs-environment,local_image,2,2,0,1,1,1,DLS,"{""max_depth"": 1}",True,,1,1,0.0381,1,1
+7368c1b5-320c-46a8-9a3a-cfe5a900a130,2026-11-13T18:28:11.574205+00:00,bfs-environment,local_image,2,2,0,1,1,1,IDS,"{""max_depth"": 1}",True,,1,1,0.0582,1,1
+3ac7fa6c-51fe-4e89-a40e-2f541fb83187,2026-11-13T18:28:11.605789+00:00,bfs-environment,local_image,2,2,0,1,1,1,UCS,{},True,,1,1,0.0287,1,1
+29cc916d-5254-4e44-b0da-70855f3d5965,2026-11-13T18:30:12.439031+00:00,selection-grid,local_image,2,2,0,1,1,1,BFS,{},True,1.0,1,1,0.0501,1,1
+49a129e9-bcb2-4616-aee1-57f6e4afd1b7,2026-11-13T18:30:12.614008+00:00,bfs-environment,local_image,2,2,0,1,1,1,BFS,{},True,1.0,1,1,0.0401,1,1
+ebf450a4-225b-4226-8ea9-4ccf7561ff2f,2026-11-13T18:30:12.651743+00:00,bfs-environment,local_image,2,2,0,1,1,1,DFS,{},True,1.0,1,1,0.0427,1,1
+db21b90c-96c2-4ee4-86f8-7e6f082499dd,2026-11-13T18:30:12.683253+00:00,bfs-environment,local_image,2,2,0,1,1,1,DLS,"{""max_depth"": 1}",True,1.0,1,1,0.0318,1,1
+a00fb564-bc9d-47e2-b79d-0ee110e67135,2026-11-13T18:30:12.729892+00:00,bfs-environment,local_image,2,2,0,1,1,1,IDS,"{""max_depth"": 1}",True,1.0,1,1,0.0767,1,1
+7168d80a-ea2f-4e06-a048-667e29f3e9dc,2026-11-13T18:30:12.777632+00:00,bfs-environment,local_image,2,2,0,1,1,1,UCS,{},True,1.0,1,1,0.0418,1,1
+3dff6649-2f63-47a0-b3c4-068ae2a851f7,2026-11-13T18:32:50.440744+00:00,bfs-environment,local_image,2,2,0,1,1,1,BFS,{},True,1.0,1,1,0.0399,1,1
+be1c183e-4b2f-42fc-ac84-e522c153d641,2026-11-13T18:32:50.478235+00:00,bfs-environment,local_image,2,2,0,1,1,1,DFS,{},True,1.0,1,1,0.0431,1,1
+7edffcd9-656e-4a66-8fce-b51e71ccd169,2026-11-13T18:32:50.508775+00:00,bfs-environment,local_image,2,2,0,1,1,1,DLS,"{""max_depth"": 1}",True,1.0,1,1,0.0371,1,1
+b73135ce-01ed-4f05-88ef-6dba746a7802,2026-11-13T18:32:50.554375+00:00,bfs-environment,local_image,2,2,0,1,1,1,IDS,"{""max_depth"": 1}",True,1.0,1,1,0.112,1,1
+b282d981-859e-46a5-82cc-736ef9e0dd47,2026-11-13T18:32:50.599886+00:00,bfs-environment,local_image,2,2,0,1,1,1,UCS,{},True,1.0,1,1,0.1161,1,1
+6545a965-60dd-4c2e-9623-4a8fa6070261,2026-11-13T18:35:11.796259+00:00,bfs-environment,local_image,2,2,0,1,1,1,BFS,{},True,1.0,1,1,0.0478,1,1
+79766202-8581-4a6b-ad13-01abfbfc46fd,2026-11-13T18:35:11.826756+00:00,bfs-environment,local_image,2,2,0,1,1,1,DFS,{},True,1.0,1,1,0.0332,1,1
+55315124-25f4-4d9b-9c46-9345bdd010a9,2026-11-13T18:35:11.873053+00:00,bfs-environment,local_image,2,2,0,1,1,1,DLS,"{""max_depth"": 1}",True,1.0,1,1,0.0347,1,1
+99010b5f-3c5c-43bf-a128-731fc06e2470,2026-11-13T18:35:11.904663+00:00,bfs-environment,local_image,2,2,0,1,1,1,IDS,"{""max_depth"": 1}",True,1.0,1,1,0.0995,1,1
+fcc5eaaf-e753-4b1d-94ce-69a371080ebc,2026-11-13T18:35:11.950810+00:00,bfs-environment,local_image,2,2,0,1,1,1,UCS,{},True,1.0,1,1,0.0424,1,1
+33aca2ac-5d78-486b-a800-e84933b84e2d,2026-11-13T18:40:19.523738+00:00,map_1,local_image,157,157,67,109,4,41,BFS,{},True,1.0,131,131,199.9693,12469,144
+be20661b-701b-473f-bafe-d08a71bfe655,2026-11-13T18:46:07.197674+00:00,bfs-environment,local_image,2,2,0,1,1,1,BFS,{},True,1.0,1,1,0.0262,1,1
+7ccc9c2e-9c00-484c-9fe7-5d51dc278de2,2026-11-13T18:46:07.230943+00:00,bfs-environment,local_image,2,2,0,1,1,1,DFS,{},True,1.0,1,1,0.0207,1,1
+67f7a718-3959-4241-a297-954b02ee5ac5,2026-11-13T18:46:07.262164+00:00,bfs-environment,local_image,2,2,0,1,1,1,DLS,"{""max_depth"": 1}",True,1.0,1,1,0.0288,1,1
+65ae8322-6d28-4665-95c4-411a9de37198,2026-11-13T18:46:07.292541+00:00,bfs-environment,local_image,2,2,0,1,1,1,IDS,"{""max_depth"": 1}",True,1.0,1,1,0.1426,1,1
+7c81a0d0-b5b5-487b-9991-11c01e50972f,2026-11-13T18:46:07.323885+00:00,bfs-environment,local_image,2,2,0,1,1,1,UCS,{},True,1.0,1,1,0.0283,1,1
+4a92ea93-8f4a-4d32-9e6e-c0dc9b4e3ae7,2026-11-13T18:48:45.665565+00:00,bfs-environment,local_image,2,2,0,1,1,1,BFS,{},True,1.0,1,1,0.0262,1,1
+623e8a6b-d1f5-4096-b31f-816268c05ee0,2026-11-13T18:48:45.697639+00:00,bfs-environment,local_image,2,2,0,1,1,1,DFS,{},True,1.0,1,1,0.0234,1,1
+659276cf-43f9-457d-a12b-04a30cea1a25,2026-11-13T18:48:45.728936+00:00,bfs-environment,local_image,2,2,0,1,1,1,DLS,"{""max_depth"": 1}",True,1.0,1,1,0.0358,1,1
+19cce9af-bf69-47dc-b2b7-51d81f3c2b44,2026-11-13T18:48:45.761515+00:00,bfs-environment,local_image,2,2,0,1,1,1,IDS,"{""max_depth"": 1}",True,1.0,1,1,0.1218,1,1
+2156b8ff-1044-4d54-ad7c-d795097123ad,2026-11-13T18:48:45.791914+00:00,bfs-environment,local_image,2,2,0,1,1,1,UCS,{},True,1.0,1,1,0.0496,1,1
+44b616fc-1983-4699-8746-6389781d706b,2026-11-13T18:51:26.704653+00:00,map_1,local_image,157,157,57,113,155,45,BFS,{},True,1.0,166,166,160.1007,13548,123
+411cc0eb-1827-4d3d-915b-fe7152a4790a,2026-11-13T18:51:48.173912+00:00,BARN/grid_14,BARN,30,30,3,13,26,23,BFS,{},True,1.0,33,33,3.8638,731,35
+bb5f404d-d80f-4c27-a784-d37e6427250f,2026-11-13T18:52:44.604231+00:00,BARN/grid_89,BARN,30,30,1,0,28,29,BFS,{},True,1.0,56,56,11.2555,798,26
+3a6eebfe-ec69-4a0c-80e2-c72a44e01afc,2026-11-13T18:59:08.091670+00:00,bfs-environment,local_image,2,2,0,1,1,1,BFS,{},True,1.0,1,1,0.0395,1,1
+16a580fa-af90-4a3c-864b-444610874256,2026-11-13T18:59:08.126360+00:00,bfs-environment,local_image,2,2,0,1,1,1,DFS,{},True,1.0,1,1,0.0377,1,1
+c1e36619-011c-4257-8dc3-ec31116f3ba8,2026-11-13T18:59:08.159685+00:00,bfs-environment,local_image,2,2,0,1,1,1,DLS,"{""max_depth"": 1}",True,1.0,1,1,0.0358,1,1
+584574ac-6d8d-4c0f-80c5-c9753ebaa4fa,2026-11-13T18:59:08.191373+00:00,bfs-environment,local_image,2,2,0,1,1,1,IDS,"{""max_depth"": 1}",True,1.0,1,1,0.1193,1,1
+079ed3dd-1859-4b42-b9fb-480d4d1e4721,2026-11-13T18:59:08.238637+00:00,bfs-environment,local_image,2,2,0,1,1,1,UCS,{},True,1.0,1,1,0.0398,1,1
+4fd968e1-782d-414d-8efd-b157ab7ae6db,2026-11-13T19:05:59.249149+00:00,bfs-environment,local_image,2,2,0,1,1,1,BFS,{},True,1.0,1,1,0.0662,1,1
+385abfe1-d0dc-4fb3-b665-ca84f24eac20,2026-11-13T19:05:59.387813+00:00,bfs-environment,local_image,2,2,0,1,1,1,DFS,{},True,1.0,1,1,0.0566,1,1
+3d0c7eae-8997-461f-8441-274927770a30,2026-11-13T19:05:59.468666+00:00,bfs-environment,local_image,2,2,0,1,1,1,DLS,"{""max_depth"": 1}",True,1.0,1,1,0.0404,1,1
+2f25a09c-5c62-4b60-a5f1-bd12061a4e1e,2026-11-13T19:05:59.527103+00:00,bfs-environment,local_image,2,2,0,1,1,1,IDS,"{""max_depth"": 1}",True,1.0,1,1,0.8043,1,1
+42ea71c1-57ea-4d5f-9194-fdffbcc36bbd,2026-11-13T19:05:59.560430+00:00,bfs-environment,local_image,2,2,0,1,1,1,UCS,{},True,1.0,1,1,0.0555,1,1
+76f1b6a0-fed5-4680-b021-24b906c6330d,2026-11-13T19:06:44.094391+00:00,BARN/grid_0,BARN,30,30,1,0,27,27,BFS,{},True,1.0,53,53,10.334,778,28
+480ef7b6-79bf-42ce-8c6d-a8dab748fb22,2026-11-13T19:06:46.204401+00:00,bfs-environment,local_image,2,2,0,1,1,1,BFS,{},True,1.0,1,1,0.0442,1,1
+80c7147f-6133-4fe9-8d36-3bf313f6fcf3,2026-11-13T19:06:46.273990+00:00,bfs-environment,local_image,2,2,0,1,1,1,DFS,{},True,1.0,1,1,0.0437,1,1
+8b1b22f1-63b9-4549-80f6-1de3193938bb,2026-11-13T19:06:46.328538+00:00,bfs-environment,local_image,2,2,0,1,1,1,DLS,"{""max_depth"": 1}",True,1.0,1,1,0.4477,1,1
+dea6ca20-77a7-4561-90f3-66fc0c9d5ce8,2026-11-13T19:06:46.383762+00:00,bfs-environment,local_image,2,2,0,1,1,1,IDS,"{""max_depth"": 1}",True,1.0,1,1,0.1877,1,1
+1a77d889-5965-42ca-a042-9e86222b28d4,2026-11-13T19:06:46.428655+00:00,bfs-environment,local_image,2,2,0,1,1,1,UCS,{},True,1.0,1,1,0.9601,1,1
+a66e6b2c-06d6-4816-bc9f-1591c8903246,2026-11-14T11:08:02.796918+00:00,bfs-environment,local_image,2,2,0,1,1,1,BFS,{},True,1.0,1,1,0.8506,1,1
+9d27882e-743c-4934-9e3f-b7e772b5ee97,2026-11-14T11:08:02.841027+00:00,bfs-environment,local_image,2,2,0,1,1,1,DFS,{},True,1.0,1,1,0.0605,1,1
+549f186d-efaa-4e62-bc65-d814e380d106,2026-11-14T11:08:02.871286+00:00,bfs-environment,local_image,2,2,0,1,1,1,DLS,"{""max_depth"": 1}",True,1.0,1,1,0.0441,1,1
+03edcb4f-775f-4816-aba8-411dcf70d5e0,2026-11-14T11:08:02.902457+00:00,bfs-environment,local_image,2,2,0,1,1,1,IDS,"{""max_depth"": 1}",True,1.0,1,1,0.1136,1,1
+248b8c4a-472c-4fee-a50e-e75b4308ca97,2026-11-14T11:08:02.933019+00:00,bfs-environment,local_image,2,2,0,1,1,1,UCS,{},True,1.0,1,1,0.7296,1,1
+bea338c5-280c-492f-93f2-215f8a17e617,2026-11-14T11:57:22.267369+00:00,BARN/grid_0,BARN,30,30,1,13,27,27,BFS,{},True,1.0,40,40,7.8141,778,33
+43806807-5ddf-4a15-b057-89174ae01bab,2026-11-14T11:58:26.698098+00:00,map_1,local_image,157,157,65,111,10,43,BFS,{},True,1.0,123,123,121.7006,11632,137
+52f3efcb-8ddc-4504-8a1e-547faf6d5132,2026-11-14T11:58:59.567875+00:00,map_5,local_image,157,157,72,114,5,22,BFS,{},True,1.0,159,159,78.8018,14160,145
+174bc66e-eacc-4b88-be2c-ee55e39550ba,2026-11-14T11:59:29.024584+00:00,map_5,local_image,157,157,72,114,5,22,BFS,{},True,1.0,159,159,70.3781,14160,145
+191b1e4c-756a-4fee-9d65-af1868b61787,2026-11-14T11:59:29.065145+00:00,map_5,local_image,157,157,72,114,5,22,DFS,{},True,1.0,1421,1421,39.5575,6635,2705
+bf8efb04-0f39-4e10-8fff-476a3632654e,2026-11-14T11:59:29.083914+00:00,map_5,local_image,157,157,72,114,5,22,DLS,"{""max_depth"": 20}",False,0.0,,,18.6491,2302,42
+8df14b28-3740-4a95-b271-d0e8461e3333,2026-11-14T11:59:29.203300+00:00,map_5,local_image,157,157,72,114,5,22,IDS,"{""max_depth"": 20}",False,0.0,,,118.5289,13028,42
+bd47bc3d-9036-47b8-8f65-45f9fa2f0c55,2026-11-14T11:59:29.292435+00:00,map_5,local_image,157,157,72,114,5,22,UCS,{},True,1.0,159,159,88.5721,14160,145

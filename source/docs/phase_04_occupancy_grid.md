@@ -33,7 +33,7 @@ Cell size is configurable from 1 to 512 source pixels. The converter rejects emp
 3. Choose cell size and obstacle percentage, then generate the grid.
 4. Inspect the occupancy-grid preview, dimensions, and occupied/free counts. Use Fit or the zoom controls to inspect detail.
 
-The grid preview is a separate image generated from the validated Boolean grid. It does not replace the source or binary preview. Grid settings can be changed and the grid regenerated; preprocessing changes also refresh an already generated grid. No start/goal detection or pathfinding is performed in this phase.
+The grid preview is a separate image generated from the validated Boolean grid. It does not replace the source or binary preview. Grid settings can be changed and the grid regenerated; preprocessing changes also refresh an already generated grid. Start and goal selection are implemented in Phase 05; pathfinding is not implemented.
 
 ## Tests
 

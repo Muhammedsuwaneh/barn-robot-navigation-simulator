@@ -26,6 +26,10 @@ class OccupancyGrid:
 			raise OccupancyGridError("Grid cells must be a non-empty 2D array.")
 		if self.cells.dtype != np.bool_:
 			raise OccupancyGridError("Grid cells must use Boolean values (True=occupied, False=free).")
+		for name in ("cell_size_px", "obstacle_threshold_percent", "source_width_px", "source_height_px"):
+			value = getattr(self, name)
+			if isinstance(value, bool) or not isinstance(value, int):
+				raise OccupancyGridError(f"{name} must be an integer.")
 		if not 1 <= self.cell_size_px <= MAX_CELL_SIZE_PX:
 			raise OccupancyGridError(f"Cell size must be between 1 and {MAX_CELL_SIZE_PX} pixels.")
 		if not 1 <= self.obstacle_threshold_percent <= 100:
@@ -39,8 +43,8 @@ class OccupancyGrid:
 		if self.cells.size > MAX_GRID_CELLS:
 			raise OccupancyGridError(f"Grid exceeds the {MAX_GRID_CELLS:,}-cell safety limit.")
 
-		immutable_cells = np.array(self.cells, dtype=np.bool_, copy=True)
-		immutable_cells.setflags(write=False)
+		# Back with immutable bytes so callers cannot re-enable writes with setflags.
+		immutable_cells = np.frombuffer(self.cells.tobytes(order="C"), dtype=np.bool_).reshape(self.cells.shape)
 		object.__setattr__(self, "cells", immutable_cells)
 
 	@property
