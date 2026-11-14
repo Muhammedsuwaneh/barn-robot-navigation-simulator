@@ -6,16 +6,16 @@ Rectangle {
     id: root
     required property var viewModel
     property real zoom: 1.0
-    readonly property bool wideLayout: width >= 850
+    readonly property bool wideLayout: width >= 600
     property string emptyMessage: "Generate a grid from the processed image."
-    implicitHeight: wideLayout ? 360 : controlsLayout.implicitHeight + gridHeader.implicitHeight + 230
+    implicitHeight: wideLayout ? 400 : controlsLayout.implicitHeight + gridHeader.implicitHeight + 330
     signal comparisonRequested()
 
     Layout.fillWidth: true
     Layout.fillHeight: true
     Layout.minimumWidth: 280
     Layout.minimumHeight: implicitHeight
-    radius: 5
+    radius: 10
     color: "#FFFFFF"
     border.color: "#DDE4DE"
 
@@ -23,7 +23,7 @@ Rectangle {
         anchors.fill: parent
         anchors.margins: 10
         columns: root.wideLayout ? 2 : 1
-        columnSpacing: 18
+        columnSpacing: 12
         rowSpacing: 10
 
         RowLayout {
@@ -54,8 +54,8 @@ Rectangle {
             objectName: "gridViewportFrame"
             Layout.fillWidth: true
             Layout.fillHeight: true
-            Layout.minimumHeight: 180
-            color: "#E6EBE7"
+            Layout.minimumHeight: 280
+            color: "#EDF2EE"
             radius: 3
             clip: true
 
@@ -231,9 +231,9 @@ Rectangle {
             objectName: "gridControlsScroll"
             Layout.fillWidth: !root.wideLayout
             Layout.fillHeight: root.wideLayout
-            Layout.preferredWidth: root.wideLayout ? 330 : -1
-            Layout.minimumWidth: root.wideLayout ? 330 : 0
-            Layout.maximumWidth: root.wideLayout ? 330 : Infinity
+            Layout.preferredWidth: root.wideLayout ? 248 : -1
+            Layout.minimumWidth: root.wideLayout ? 248 : 0
+            Layout.maximumWidth: root.wideLayout ? 248 : Infinity
             Layout.preferredHeight: root.wideLayout ? -1 : controlsLayout.implicitHeight
             clip: true
             contentWidth: availableWidth
@@ -242,7 +242,7 @@ Rectangle {
             ColumnLayout {
                 id: controlsLayout
                 width: controlsScroll.availableWidth
-                spacing: 10
+                spacing: 12
                 RowLayout {
                     Layout.fillWidth: true
                     spacing: 4
@@ -256,14 +256,16 @@ Rectangle {
                         Layout.fillWidth: true
                         elide: Text.ElideRight; Layout.minimumWidth: 0
                     }
-                    Button {
+                    CompactButton {
+                        Layout.preferredWidth: 32
                         text: "-"
                         enabled: root.viewModel.gridReady && root.zoom > 0.5
                         onClicked: root.zoom = Math.max(0.5, root.zoom - 0.25)
                         ToolTip.visible: hovered
                         ToolTip.text: "Zoom out"
                     }
-                    Button {
+                    CompactButton {
+                        Layout.preferredWidth: 40
                         text: "Fit"
                         enabled: root.viewModel.gridReady
                             && !root.viewModel.searchBusy
@@ -271,7 +273,8 @@ Rectangle {
                         ToolTip.visible: hovered
                         ToolTip.text: "Fit the complete grid in the preview"
                     }
-                    Button {
+                    CompactButton {
+                        Layout.preferredWidth: 32
                         text: "+"
                         enabled: root.viewModel.gridReady && root.zoom < 4.0
                         onClicked: root.zoom = Math.min(4.0, root.zoom + 0.25)
@@ -283,7 +286,7 @@ Rectangle {
                 RowLayout {
                     Layout.fillWidth: true
                     spacing: 5
-                    Button {
+                    CompactButton {
                         objectName: "setStartButton"
                         Layout.fillWidth: true
                         text: "Set Start"
@@ -295,7 +298,7 @@ Rectangle {
                         font.pixelSize: 10
                         onClicked: root.viewModel.setSelectionMode(checked ? "start" : "none")
                     }
-                    Button {
+                    CompactButton {
                         objectName: "setGoalButton"
                         Layout.fillWidth: true
                         text: "Set Goal"
@@ -306,7 +309,7 @@ Rectangle {
                         font.pixelSize: 10
                         onClicked: root.viewModel.setSelectionMode(checked ? "goal" : "none")
                     }
-                    Button {
+                    CompactButton {
                         objectName: "clearSelectionButton"
                         text: "Clear"
                         enabled: !root.viewModel.searchBusy
@@ -346,6 +349,8 @@ Rectangle {
                     spacing: 4
                     ComboBox {
                         objectName: "algorithmSelector"
+                        Layout.minimumWidth: 0
+                        Layout.preferredHeight: 32
                         Layout.fillWidth: true
                         model: root.viewModel.availableAlgorithms
                         currentIndex: model.indexOf(root.viewModel.selectedAlgorithm)
@@ -367,8 +372,10 @@ Rectangle {
                             font.pixelSize: 10
                             font.bold: true
                         }
-                        SpinBox {
+                        CompactSpinBox {
                             objectName: "depthLimitInput"
+                            Layout.preferredWidth: 88
+                            Layout.preferredHeight: 32
                             from: 0
                             to: 512
                             value: root.viewModel.depthLimit
@@ -396,8 +403,9 @@ Rectangle {
                 RowLayout {
                     Layout.fillWidth: true
                     spacing: 4
-                    Button {
+                    CompactButton {
                         objectName: "runSearchButton"
+                        primary: true
                         Layout.fillWidth: true
                         text: root.viewModel.searchBusy
                             ? "Searching..."
@@ -409,7 +417,7 @@ Rectangle {
                         ToolTip.visible: hovered && !enabled
                         ToolTip.text: "Generate a grid and set distinct free start and goal cells first"
                     }
-                    Button {
+                    CompactButton {
                         objectName: "compareAlgorithmsButton"
                         Layout.fillWidth: true
                         text: root.viewModel.comparisonBusy ? "Comparing..." : "Compare"
@@ -420,7 +428,13 @@ Rectangle {
                         ToolTip.visible: hovered && !enabled
                         ToolTip.text: "Choose algorithms to compare on the same map and endpoints"
                     }
-                    Button {
+                }
+
+                RowLayout {
+                    Layout.fillWidth: true
+                    spacing: 6
+                    CompactButton {
+                        Layout.fillWidth: true
                         objectName: "resetSearchButton"
                         text: "Reset"
                         enabled: root.viewModel.hasSearchResult && !root.viewModel.searchBusy
@@ -428,7 +442,7 @@ Rectangle {
                         font.family: "Bahnschrift"
                         font.pixelSize: 10
                     }
-                    Button {
+                    CompactButton {
                         objectName: "cancelSearchButton"
                         text: "Cancel"
                         visible: root.viewModel.searchBusy && !root.viewModel.comparisonBusy

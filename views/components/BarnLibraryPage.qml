@@ -59,15 +59,16 @@ Item {
                     color: "#69776E"
                     font.pixelSize: 10
                 }
-                Button {
+                CompactButton {
                     objectName: "chooseBarnFolderButton"
                     text: "Dataset folder"
                     onClicked: root.directoryRequested()
                     ToolTip.visible: hovered
                     ToolTip.text: root.viewModel.barnDirectory
                 }
-                Button {
+                CompactButton {
                     objectName: "importBarnMapButton"
+                    primary: true
                     text: "Import BARN map"
                     enabled: barnMapSelector.count > 0 && barnMapSelector.currentIndex >= 0 && !root.viewModel.searchBusy
                     onClicked: root.viewModel.importBarnMap(barnMapSelector.currentValue)

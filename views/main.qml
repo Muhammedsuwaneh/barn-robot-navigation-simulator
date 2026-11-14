@@ -12,6 +12,7 @@ ApplicationWindow {
     readonly property var activeViewModel: navigationViewModel.activeSection === "barn"
         ? barnViewModel : navigationViewModel
     visible: true
+    flags: Qt.Window | Qt.FramelessWindowHint
     width: 1440
     height: 900
     minimumWidth: 1080
@@ -26,8 +27,9 @@ ApplicationWindow {
         spacing: 0
 
         Rectangle {
+            objectName: "customTitleBar"
             Layout.fillWidth: true
-            Layout.preferredHeight: 72
+            Layout.preferredHeight: 60
             color: "#FFFFFF"
             border.color: "#DDE4DE"
             border.width: 1
@@ -35,7 +37,7 @@ ApplicationWindow {
             RowLayout {
                 anchors.fill: parent
                 anchors.leftMargin: 24
-                anchors.rightMargin: 28
+                anchors.rightMargin: 16
                 spacing: 14
 
                 Rectangle {
@@ -57,7 +59,7 @@ ApplicationWindow {
                 ColumnLayout {
                     spacing: 2
                     Text {
-                        text: "NAVIGATION LAB"
+                        text: window.title
                         color: "#17231D"
                         font.family: window.font.family
                         font.pixelSize: 15
@@ -112,6 +114,35 @@ ApplicationWindow {
                     font.pixelSize: 10
                     font.letterSpacing: 1
                 }
+
+                Button {
+                    id: closeWindowButton
+                    objectName: "closeWindowButton"
+                    Layout.preferredWidth: 32
+                    Layout.preferredHeight: 32
+                    Layout.leftMargin: 10
+                    text: "\u00d7"
+                    hoverEnabled: true
+                    Accessible.name: "Close window"
+                    onClicked: window.close()
+
+                    contentItem: Text {
+                        text: closeWindowButton.text
+                        color: "#FFFFFF"
+                        font.pixelSize: 22
+                        horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment: Text.AlignVCenter
+                    }
+                    background: Rectangle {
+                        radius: width / 2
+                        color: closeWindowButton.down ? "#A82632"
+                            : closeWindowButton.hovered ? "#D94350" : "#C93442"
+                        border.width: closeWindowButton.visualFocus ? 2 : 0
+                        border.color: "#174D3A"
+                    }
+                    ToolTip.visible: hovered
+                    ToolTip.text: "Close window"
+                }
             }
         }
 
@@ -122,14 +153,14 @@ ApplicationWindow {
 
             Rectangle {
                 Layout.fillHeight: true
-                Layout.preferredWidth: 220
+                Layout.preferredWidth: 188
                 color: "#FFFFFF"
                 border.color: "#DDE4DE"
                 border.width: 1
 
                 ColumnLayout {
                     anchors.fill: parent
-                    anchors.topMargin: 28
+                    anchors.topMargin: 22
                     anchors.leftMargin: 16
                     anchors.rightMargin: 16
                     anchors.bottomMargin: 18
@@ -206,8 +237,8 @@ ApplicationWindow {
             ColumnLayout {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
-                Layout.margins: 24
-                spacing: 18
+                Layout.margins: 18
+                spacing: 14
 
                 StackLayout {
                     Layout.fillWidth: true

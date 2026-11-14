@@ -27,6 +27,10 @@ class ApplicationSmokeTests(unittest.TestCase):
 		cls.addClassCleanup(cls.log_patch.stop)
 		cls.application, cls.engine, cls.view_model = create_application([])
 		cls.window = cls.engine.rootObjects()[0]
+		cls.startup_geometry = cls.window.geometry()
+		# The offscreen monitor can be smaller than the workflow's test layout.
+		cls.window.resize(1440, 900)
+		cls.application.processEvents()
 		cls.barn_view_model = cls.window.property("barnViewModel")
 		control_names = (
 			"loadImageButton",
@@ -55,6 +59,33 @@ class ApplicationSmokeTests(unittest.TestCase):
 	def test_qml_window_loads_with_backend_context(self) -> None:
 		self.assertEqual(self.window.property("title"), "AI Robot Navigation Simulator")
 		self.assertEqual(self.view_model.property("activeSection"), "workspace")
+
+	def test_window_fills_work_area_with_custom_title_bar(self) -> None:
+		self.assertEqual(self.startup_geometry, self.window.screen().availableGeometry())
+		self.assertTrue(self.window.flags() & Qt.WindowType.FramelessWindowHint)
+		self.assertFalse(self.window.windowState() & Qt.WindowState.WindowFullScreen)
+		self.assertIsNotNone(self.window.findChild(QObject, "customTitleBar"))
+		self.assertEqual(len(self.window.findChildren(QObject, "closeWindowButton")), 1)
+
+	def test_preprocessing_settings_expand_without_moving_grid_controls(self) -> None:
+		page = self.window.findChild(QObject, "customImagesPage")
+		panel = page.findChild(QObject, "processingPanel")
+		frame = page.findChild(QObject, "gridViewportFrame")
+		toggle = page.findChild(QObject, "toggleProcessingButton")
+		self.view_model.selectSection("workspace")
+		self.application.processEvents()
+		collapsed_height = panel.height()
+		grid_height = frame.height()
+		try:
+			QMetaObject.invokeMethod(toggle, "clicked")
+			QTest.qWait(30)
+			self.assertTrue(page.property("processingExpanded"))
+			self.assertGreater(panel.height(), collapsed_height)
+			self.assertAlmostEqual(frame.height(), grid_height, delta=1)
+			self.assertTrue(page.findChild(QObject, "thresholdSlider").property("visible"))
+		finally:
+			page.setProperty("processingExpanded", False)
+			self.application.processEvents()
 
 	def wait_for_search(self, model, timeout: float = 5) -> None:
 		deadline = time.monotonic() + timeout
@@ -271,9 +302,21 @@ class ApplicationSmokeTests(unittest.TestCase):
 							processing = page.findChild(QObject, "processingPanel")
 							self.assertFalse(scene_rect(preview).intersects(scene_rect(processing)))
 							self.assertLessEqual(scene_rect(controls).bottom(), scene_rect(preview).bottom())
+							source = page.findChild(QObject, "originalImagePreview").parentItem()
+							processed = page.findChild(QObject, "processedImagePreview").parentItem()
+							self.assertAlmostEqual(source.width(), processed.width(), delta=1)
+							self.assertAlmostEqual(source.height(), processed.height(), delta=1)
+							self.assertGreaterEqual(source.height(), 280)
+							self.assertFalse(scene_rect(source).intersects(scene_rect(processed)))
+							self.assertLessEqual(scene_rect(source).bottom(), scene_rect(processed).top())
+							self.assertLessEqual(scene_rect(source).right(), scene_rect(frame).left())
+							self.assertLessEqual(scene_rect(processed).right(), scene_rect(frame).left())
+							self.assertAlmostEqual(source.parentItem().width(), frame.parentItem().parentItem().width(), delta=1)
+							for name in ("setStartButton", "setGoalButton", "runSearchButton", "compareAlgorithmsButton"):
+								self.assertLessEqual(page.findChild(QObject, name).height(), 34)
 						else:
 							viewer = page.findChild(QObject, "barnGridViewer")
-							self.assertEqual(viewer.property("wideLayout"), width >= 1440)
+							self.assertEqual(viewer.property("wideLayout"), viewer.width() >= 600)
 							image = page.findChild(QObject, "occupancyGridPreview")
 							if model.gridReady:
 								marker = page.findChild(QObject, "startCellMarker")

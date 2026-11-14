@@ -5,6 +5,7 @@ import QtQuick.Layouts 1.15
 Item {
     id: root
     required property var viewModel
+    property bool processingExpanded: false
     signal loadImageRequested()
     signal comparisonRequested()
 
@@ -29,14 +30,14 @@ Item {
                 ColumnLayout {
                     spacing: 3
                     Text {
-                        text: "Custom image maps"
+                        text: "Map workspace"
                         color: "#19251E"
                         font.family: "Bahnschrift"
                         font.pixelSize: 22
                         font.bold: true
                     }
                     Text {
-                        text: "IMAGE UPLOAD / PREPROCESSING / OCCUPANCY GRID"
+                        text: "Prepare your map, choose endpoints, and explore a path."
                         color: "#738078"
                         font.family: "Bahnschrift"
                         font.pixelSize: 9
@@ -94,11 +95,45 @@ Item {
                 }
             }
 
+            RowLayout {
+                Layout.fillWidth: true
+                spacing: 10
+                Text { text: "GRID SETTINGS"; color: "#45534A"; font.pixelSize: 10; font.bold: true }
+                Text { text: "Cell size (px)"; color: "#657269"; font.pixelSize: 11 }
+                CompactSpinBox {
+                    objectName: "gridCellSizeInput"
+                    Layout.preferredWidth: 96
+                    Layout.preferredHeight: 32
+                    from: 1; to: 512
+                    value: root.viewModel.gridCellSizePx
+                    enabled: root.viewModel.hasImage
+                    onValueModified: root.viewModel.gridCellSizePx = value
+                }
+                Text { text: "Obstacle (%)"; color: "#657269"; font.pixelSize: 11 }
+                CompactSpinBox {
+                    objectName: "obstacleThresholdInput"
+                    Layout.preferredWidth: 96
+                    Layout.preferredHeight: 32
+                    from: 1; to: 100
+                    value: root.viewModel.obstacleThresholdPercent
+                    enabled: root.viewModel.hasImage
+                    onValueModified: root.viewModel.obstacleThresholdPercent = value
+                }
+                Item { Layout.fillWidth: true }
+                CompactButton {
+                    objectName: "generateGridButton"
+                    primary: true
+                    text: root.viewModel.gridReady ? "Regenerate grid" : "Generate grid"
+                    enabled: root.viewModel.hasImage
+                    onClicked: root.viewModel.generateOccupancyGrid()
+                }
+            }
+
             Rectangle {
                 Layout.fillWidth: true
                 objectName: "customPreviewPanel"
-                Layout.preferredHeight: Math.max(customGrid.implicitHeight + 90, root.height - processingPanel.implicitHeight - 130)
-                Layout.minimumHeight: customGrid.implicitHeight + 90
+                Layout.preferredHeight: Math.max(customGrid.implicitHeight + 60, 630, root.height - 240)
+                Layout.minimumHeight: Math.max(customGrid.implicitHeight + 60, 630)
                 radius: 6
                 color: "#FFFFFF"
                 border.color: "#DDE4DE"
@@ -130,24 +165,37 @@ Item {
                     }
 
                     RowLayout {
+                        objectName: "mapAndGridRow"
                         Layout.fillWidth: true
                         Layout.fillHeight: true
                         spacing: 10
 
-                        PreviewPane {
-                            label: "ORIGINAL INPUT"
-                            imageSource: root.viewModel.originalPreviewUrl
-                            emptyMessage: "Load a static environment image to inspect the source."
-                            viewModel: root.viewModel
-                            showPathOverlay: true
-                        }
-                        PreviewPane {
-                            label: "BINARY PREVIEW"
-                            imageSource: root.viewModel.processedPreviewUrl
-                            emptyMessage: "The thresholded result will appear here."
+                        ColumnLayout {
+                            objectName: "mapPreviewStack"
+                            Layout.fillWidth: true
+                            Layout.fillHeight: true
+                            Layout.minimumWidth: 280
+                            Layout.preferredWidth: 1
+                            spacing: 10
+
+                            PreviewPane {
+                                Layout.preferredHeight: 1
+                                label: "ORIGINAL INPUT"
+                                imageSource: root.viewModel.originalPreviewUrl
+                                emptyMessage: "Load an image to inspect the source."
+                                viewModel: root.viewModel
+                                showPathOverlay: true
+                            }
+                            PreviewPane {
+                                Layout.preferredHeight: 1
+                                label: "BINARY PREVIEW"
+                                imageSource: root.viewModel.processedPreviewUrl
+                                emptyMessage: "The processed map will appear here."
+                            }
                         }
                         GridPreviewPane {
                             id: customGrid
+                            Layout.preferredWidth: 1
                             onComparisonRequested: root.comparisonRequested()
                             viewModel: root.viewModel
                         }
@@ -195,7 +243,7 @@ Item {
                     RowLayout {
                         Layout.fillWidth: true
                         Text {
-                            text: "PROCESSING CONTROLS"
+                            text: "IMAGE PREPROCESSING"
                             color: "#35443B"
                             font.family: "Bahnschrift"
                             font.pixelSize: 10
@@ -203,17 +251,15 @@ Item {
                             font.letterSpacing: 0.8
                         }
                         Item { Layout.fillWidth: true }
-                        Text {
-                            text: "BLACK = OBSTACLE / WHITE = FREE"
-                            color: "#438261"
-                            font.family: "Bahnschrift"
-                            font.pixelSize: 9
-                            font.bold: true
-                            font.letterSpacing: 0.4
+                        CompactButton {
+                            objectName: "toggleProcessingButton"
+                            text: root.processingExpanded ? "Hide settings" : "Adjust image settings"
+                            onClicked: root.processingExpanded = !root.processingExpanded
                         }
                     }
 
                     GridLayout {
+                        visible: root.processingExpanded
                         Layout.fillWidth: true
                         Layout.fillHeight: true
                         columns: pageScroll.availableWidth >= 1100 ? 3 : 2
@@ -292,7 +338,7 @@ Item {
                                     Layout.fillWidth: true
                                     spacing: 3
                                     Text { text: "BLOCK SIZE"; color: "#657269"; font.family: "Bahnschrift"; font.pixelSize: 10; font.bold: true }
-                                    SpinBox {
+                                    CompactSpinBox {
                                         objectName: "adaptiveBlockSizeInput"
                                         Layout.fillWidth: true
                                         from: 3
@@ -307,7 +353,7 @@ Item {
                                     Layout.fillWidth: true
                                     spacing: 3
                                     Text { text: "ADAPTIVE C"; color: "#657269"; font.family: "Bahnschrift"; font.pixelSize: 10; font.bold: true }
-                                    SpinBox {
+                                    CompactSpinBox {
                                         objectName: "adaptiveCInput"
                                         Layout.fillWidth: true
                                         from: -50
@@ -337,7 +383,7 @@ Item {
                                     font.pixelSize: 9
                                     onActivated: root.viewModel.morphologyMode = currentText.toLowerCase() === "opening" ? "open" : currentText.toLowerCase() === "closing" ? "close" : "none"
                                 }
-                                SpinBox {
+                                CompactSpinBox {
                                     objectName: "morphologyKernelInput"
                                     Layout.preferredWidth: 82
                                     from: 1
@@ -388,97 +434,6 @@ Item {
                                     font.pixelSize: 9
                                     onClicked: root.viewModel.resetProcessing()
                                 }
-                            }
-                        }
-
-                        ColumnLayout {
-                            Layout.fillWidth: true
-                            spacing: 5
-                            Text {
-                                text: "GRID RESOLUTION"
-                                color: "#657269"
-                                font.family: "Bahnschrift"
-                                font.pixelSize: 10
-                                font.bold: true
-                                font.letterSpacing: 0.4
-                            }
-                            RowLayout {
-                                Layout.fillWidth: true
-                                spacing: 8
-                                ColumnLayout {
-                                    Layout.fillWidth: true
-                                    spacing: 2
-                                    Text { text: "CELL SIZE · PX"; color: "#87928A"; font.family: "Bahnschrift"; font.pixelSize: 9 }
-                                    SpinBox {
-                                        objectName: "gridCellSizeInput"
-                                        Layout.fillWidth: true
-                                        from: 1
-                                        to: 512
-                                        value: root.viewModel.gridCellSizePx
-                                        enabled: root.viewModel.hasImage
-                                        onValueModified: root.viewModel.gridCellSizePx = value
-                                    }
-                                }
-                                ColumnLayout {
-                                    Layout.fillWidth: true
-                                    spacing: 2
-                                    Text { text: "OBSTACLE · %"; color: "#87928A"; font.family: "Bahnschrift"; font.pixelSize: 9 }
-                                    SpinBox {
-                                        objectName: "obstacleThresholdInput"
-                                        Layout.fillWidth: true
-                                        from: 1
-                                        to: 100
-                                        value: root.viewModel.obstacleThresholdPercent
-                                        enabled: root.viewModel.hasImage
-                                        onValueModified: root.viewModel.obstacleThresholdPercent = value
-                                    }
-                                }
-                            }
-                        }
-
-                        ColumnLayout {
-                            Layout.fillWidth: true
-                            spacing: 5
-                            Text {
-                                text: "GRID GENERATION"
-                                color: "#657269"
-                                font.family: "Bahnschrift"
-                                font.pixelSize: 10
-                                font.bold: true
-                                font.letterSpacing: 0.4
-                            }
-                            Button {
-                                id: generateGridButton
-                                objectName: "generateGridButton"
-                                Layout.fillWidth: true
-                                Layout.preferredHeight: 34
-                                text: root.viewModel.gridReady ? "Regenerate grid" : "Generate occupancy grid"
-                                enabled: root.viewModel.hasImage
-                                font.family: "Bahnschrift"
-                                font.pixelSize: 9
-                                font.bold: true
-                                onClicked: root.viewModel.generateOccupancyGrid()
-                                background: Rectangle {
-                                    radius: 4
-                                    color: generateGridButton.enabled
-                                        ? (generateGridButton.hovered ? "#236548" : "#174D3A")
-                                        : "#A8B8AE"
-                                }
-                                contentItem: Text {
-                                    text: generateGridButton.text
-                                    color: "#FFFFFF"
-                                    horizontalAlignment: Text.AlignHCenter
-                                    verticalAlignment: Text.AlignVCenter
-                                    font: generateGridButton.font
-                                }
-                            }
-                            Text {
-                                Layout.fillWidth: true
-                                text: "Mixed cells are occupied at or above the selected percentage."
-                                color: "#78847C"
-                                wrapMode: Text.WordWrap
-                                font.family: "Bahnschrift"
-                                font.pixelSize: 10
                             }
                         }
                     }

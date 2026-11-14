@@ -3,11 +3,35 @@ import sys
 from pathlib import Path
 from typing import Sequence
 
-from PyQt6.QtCore import QUrl
-from PyQt6.QtGui import QGuiApplication
+from PyQt6.QtCore import QSize, QUrl
+from PyQt6.QtGui import QGuiApplication, QWindow
 from PyQt6.QtQml import QQmlApplicationEngine
 
 from viewmodels.navigation_view_model import NavigationViewModel
+
+
+def _fill_available_desktop(window: QWindow) -> None:
+	"""Fill the current monitor's work area, leaving its taskbar accessible."""
+	current_screen = None
+
+	def fit_to_work_area() -> None:
+		if current_screen is None:
+			return
+		geometry = current_screen.availableGeometry()
+		window.setMinimumSize(QSize(min(1080, geometry.width()), min(720, geometry.height())))
+		window.setGeometry(geometry)
+
+	def follow_screen(screen) -> None:
+		nonlocal current_screen
+		if current_screen is not None:
+			current_screen.availableGeometryChanged.disconnect(fit_to_work_area)
+		current_screen = screen
+		if current_screen is not None:
+			current_screen.availableGeometryChanged.connect(fit_to_work_area)
+		fit_to_work_area()
+
+	window.screenChanged.connect(follow_screen)
+	follow_screen(window.screen())
 
 
 def create_application(argv: Sequence[str] | None = None,
@@ -33,5 +57,6 @@ def create_application(argv: Sequence[str] | None = None,
 	engine.load(QUrl.fromLocalFile(str(qml_file)))
 	if not engine.rootObjects():
 		raise RuntimeError(f"Failed to load QML interface: {qml_file}")
+	_fill_available_desktop(engine.rootObjects()[0])
 
 	return application, engine, view_model
