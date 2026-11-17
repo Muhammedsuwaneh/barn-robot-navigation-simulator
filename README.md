@@ -4,8 +4,51 @@ An offline desktop simulator for **image-based robot navigation using image proc
 
 The project supports course experiments with custom images and compatible maps from the Benchmark for Autonomous Robot Navigation (BARN). It uses no physical robot, sensors, ROS, Gazebo, cloud services, deep learning, or model training.
 
+## Application screenshots and test setup
+
+The actual Qt application was run on **2026-11-17** using its offscreen platform at 1600x1000. All five algorithms (BFS, DFS, DLS, IDS, UCS) were compared once on each map below; every returned path was checked for correct endpoints, free cells, adjacent moves, and matching length/cost. All comparisons used four-directional unit-cost movement and a DLS/IDS depth limit of **30**. Coordinates are zero-based `(row, column)`.
+
+| Page | Source map | Grid | Start | Goal | Results |
+| --- | --- | --- | --- | --- | --- |
+| Custom images | `data/maps/map_1.png` | 20x20 | `(10, 4)` | `(4, 15)` | 5/5 found a route; [CSV](docs/experiments/2026-11-17/custom-comparison.csv), [JSON](docs/experiments/2026-11-17/custom-comparison.json) |
+| BARN library (raw) | `data/dataset/grid_files/grid_0.npy` | 30x30 | `(3, 3)` | `(10, 10)` | 5/5 found a route; [CSV](docs/experiments/2026-11-17-barn/barn-comparison.csv), [JSON](docs/experiments/2026-11-17-barn/barn-comparison.json) |
+| BARN library (C-space) | `data/dataset/cspace_files/cspace_0.npy` | 30x30 | `(5, 8)` | `(15, 22)` | 5/5 found a route; [CSV](docs/experiments/2026-11-17-barn/barn-cspace-comparison.csv), [JSON](docs/experiments/2026-11-17-barn/barn-cspace-comparison.json) |
+
+The custom map used default Otsu preprocessing, dark obstacles, no morphology, **64-pixel cells**, and a **50% obstacle threshold**. These settings produce a coarse image-derived grid; the route validates that grid rather than physical robot clearance in the photograph. Screenshots show the BFS route with explored cells enabled.
+
+**Custom images page**
+
+![Custom images page showing map_1.png, its binary preview, and the 17-move BFS route](docs/experiments/2026-11-17/custom-images.png)
+
+**BARN library: raw map and comparison**
+
+![BARN library page showing grid_0 and the 14-move BFS route](docs/experiments/2026-11-17-barn/barn-library.png)
+
+![All five algorithm results and timing chart for the raw BARN grid_0 map](docs/experiments/2026-11-17-barn/barn-comparison.png)
+
+**BARN library: C-space map and comparison**
+
+![BARN library page showing cspace_0 and the 24-move BFS route](docs/experiments/2026-11-17-barn/barn-cspace-library.png)
+
+![All five algorithm results and timing chart for the BARN cspace_0 map](docs/experiments/2026-11-17-barn/barn-cspace-comparison.png)
+
+The raw and C-space maps use separate valid endpoints; compare algorithms within each map rather than treating their timings as a controlled comparison between map representations. C-space is imported as supplied, without additional obstacle inflation.
+
+## Short comparison analysis
+
+On `map_1.png`, all five algorithms succeeded: BFS, UCS, and IDS found 17-move routes, compared with DFS's 45 and DLS's 29. BFS and UCS each expanded 211 nodes, while DLS expanded 913 and IDS 3,710; their measured times were 1.236, 1.924, 11.227, and 36.297 ms respectively (DFS: 2.051 ms). On BARN `grid_0`, BFS/UCS/IDS found 14-move routes versus DFS's 108 and DLS's 30; on `cspace_0`, they found 24-move routes versus DFS's 56 and DLS's 30. All five succeeded on both BARN maps. BFS/UCS offered short paths with fewer expansions than IDS on these inputs; these single trials do not establish a general timing ranking.
+
+![Actual algorithm comparison dialog with all five results and timing chart for map_1.png](docs/experiments/2026-11-17/algorithm-comparison.png)
+
+## Plans to improve and Reproductiblity
+
+Planned improvements include repeated trials with mean/standard-deviation reporting, more maps and unreachable-goal cases, A* search, and robot-clearance-aware grid generation. To reproduce these comparisons, install the recorded dependency versions above and run `python tools/capture_readme_run.py --output docs/experiments/repeat-run` from the repository root, choosing a new output directory each time. The script launches the real Qt interface offscreen, applies the exact maps, settings, endpoints, algorithm order, and depth limit above, validates all paths, and saves screenshots and CSV/JSON results for the custom image and both BARN map families; add `--desktop` to show its window. Setup metadata for the [original run](docs/experiments/2026-11-17/setup.json) and [extended BARN run](docs/experiments/2026-11-17-barn/setup.json) records source-map SHA-256 hashes and environment versions; timings and run identifiers will vary between executions.
+
 ## Contents
 
+- [Application screenshots and test setup](#application-screenshots-and-test-setup)
+- [Short comparison analysis](#short-comparison-analysis)
+- [Plans to improve and Reproductiblity](#plans-to-improve-and-reproductiblity)
 - [Objectives and features](#objectives-and-features)
 - [Technology stack](#technology-stack)
 - [Installation](#installation)
@@ -22,9 +65,6 @@ The project supports course experiments with custom images and compatible maps f
 - [Project structure](#project-structure)
 - [Testing](#testing)
 - [Troubleshooting](#troubleshooting)
-- [Application screenshots and test setup](#application-screenshots-and-test-setup)
-- [Short comparison analysis](#short-comparison-analysis)
-- [Plans to improve and Reproductiblity](#plans-to-improve-and-reproductiblity)
 - [Known limitations](#known-limitations)
 
 ## Objectives and features
@@ -324,46 +364,6 @@ These short routes verify interoperability and reproducibility. They do not esta
 | Search succeeds but logging fails | Check access to `data/experiments.csv`, whether another program has locked it, and the existing CSV header. Current comparison results remain available for export to a new file. |
 
 If a Qt platform-plugin or graphical-session error prevents startup, verify the environment's PyQt6 installation and launch from a desktop session. Offscreen automated tests do not validate every native dialog, display driver, or desktop-scaling configuration.
-
-## Application screenshots and test setup
-
-The actual Qt application was run on **2026-11-17** using its offscreen platform at 1600x1000. All five algorithms (BFS, DFS, DLS, IDS, UCS) were compared once on each map below; every returned path was checked for correct endpoints, free cells, adjacent moves, and matching length/cost. All comparisons used four-directional unit-cost movement and a DLS/IDS depth limit of **30**. Coordinates are zero-based `(row, column)`.
-
-| Page | Source map | Grid | Start | Goal | Results |
-| --- | --- | --- | --- | --- | --- |
-| Custom images | `data/maps/map_1.png` | 20x20 | `(10, 4)` | `(4, 15)` | 5/5 found a route; [CSV](docs/experiments/2026-11-17/custom-comparison.csv), [JSON](docs/experiments/2026-11-17/custom-comparison.json) |
-| BARN library (raw) | `data/dataset/grid_files/grid_0.npy` | 30x30 | `(3, 3)` | `(10, 10)` | 5/5 found a route; [CSV](docs/experiments/2026-11-17-barn/barn-comparison.csv), [JSON](docs/experiments/2026-11-17-barn/barn-comparison.json) |
-| BARN library (C-space) | `data/dataset/cspace_files/cspace_0.npy` | 30x30 | `(5, 8)` | `(15, 22)` | 5/5 found a route; [CSV](docs/experiments/2026-11-17-barn/barn-cspace-comparison.csv), [JSON](docs/experiments/2026-11-17-barn/barn-cspace-comparison.json) |
-
-The custom map used default Otsu preprocessing, dark obstacles, no morphology, **64-pixel cells**, and a **50% obstacle threshold**. These settings produce a coarse image-derived grid; the route validates that grid rather than physical robot clearance in the photograph. Screenshots show the BFS route with explored cells enabled.
-
-**Custom images page**
-
-![Custom images page showing map_1.png, its binary preview, and the 17-move BFS route](docs/experiments/2026-11-17/custom-images.png)
-
-**BARN library: raw map and comparison**
-
-![BARN library page showing grid_0 and the 14-move BFS route](docs/experiments/2026-11-17-barn/barn-library.png)
-
-![All five algorithm results and timing chart for the raw BARN grid_0 map](docs/experiments/2026-11-17-barn/barn-comparison.png)
-
-**BARN library: C-space map and comparison**
-
-![BARN library page showing cspace_0 and the 24-move BFS route](docs/experiments/2026-11-17-barn/barn-cspace-library.png)
-
-![All five algorithm results and timing chart for the BARN cspace_0 map](docs/experiments/2026-11-17-barn/barn-cspace-comparison.png)
-
-The raw and C-space maps use separate valid endpoints; compare algorithms within each map rather than treating their timings as a controlled comparison between map representations. C-space is imported as supplied, without additional obstacle inflation.
-
-## Short comparison analysis
-
-On `map_1.png`, all five algorithms succeeded: BFS, UCS, and IDS found 17-move routes, compared with DFS's 45 and DLS's 29. BFS and UCS each expanded 211 nodes, while DLS expanded 913 and IDS 3,710; their measured times were 1.236, 1.924, 11.227, and 36.297 ms respectively (DFS: 2.051 ms). On BARN `grid_0`, BFS/UCS/IDS found 14-move routes versus DFS's 108 and DLS's 30; on `cspace_0`, they found 24-move routes versus DFS's 56 and DLS's 30. All five succeeded on both BARN maps. BFS/UCS offered short paths with fewer expansions than IDS on these inputs; these single trials do not establish a general timing ranking.
-
-![Actual algorithm comparison dialog with all five results and timing chart for map_1.png](docs/experiments/2026-11-17/algorithm-comparison.png)
-
-## Plans to improve and Reproductiblity
-
-Planned improvements include repeated trials with mean/standard-deviation reporting, more maps and unreachable-goal cases, A* search, and robot-clearance-aware grid generation. To reproduce these comparisons, install the recorded dependency versions above and run `python tools/capture_readme_run.py --output docs/experiments/repeat-run` from the repository root, choosing a new output directory each time. The script launches the real Qt interface offscreen, applies the exact maps, settings, endpoints, algorithm order, and depth limit above, validates all paths, and saves screenshots and CSV/JSON results for the custom image and both BARN map families; add `--desktop` to show its window. Setup metadata for the [original run](docs/experiments/2026-11-17/setup.json) and [extended BARN run](docs/experiments/2026-11-17-barn/setup.json) records source-map SHA-256 hashes and environment versions; timings and run identifiers will vary between executions.
 
 ## Known limitations
 
