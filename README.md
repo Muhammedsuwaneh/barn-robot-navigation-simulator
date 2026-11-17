@@ -22,7 +22,9 @@ The project supports course experiments with custom images and compatible maps f
 - [Project structure](#project-structure)
 - [Testing](#testing)
 - [Troubleshooting](#troubleshooting)
-- [Suggested report screenshots](#suggested-report-screenshots)
+- [Application screenshots and test setup](#application-screenshots-and-test-setup)
+- [Short comparison analysis](#short-comparison-analysis)
+- [Plans to improve and Reproductiblity](#plans-to-improve-and-reproductiblity)
 - [Known limitations](#known-limitations)
 
 ## Objectives and features
@@ -38,14 +40,13 @@ The project supports course experiments with custom images and compatible maps f
 
 ## Technology stack
 
-Python 3.10+, PyQt6, Qt Quick/QML, OpenCV, and NumPy. Runtime dependencies are listed in [source/requirements.txt](source/requirements.txt); tests use Python's standard-library `unittest` and PyQt6's QtTest. No additional test framework is required.
+Python 3.10+, PyQt6, Qt Quick/QML, OpenCV, and NumPy. Runtime dependencies are listed in [requirements.txt](requirements.txt); tests use Python's standard-library `unittest` and PyQt6's QtTest. No additional test framework is required.
 
 ## Installation
 
-From the repository root, create an environment inside `source` and install its dependencies:
+From the repository root, create an environment and install its dependencies:
 
 ```powershell
-cd source
 py -m venv .venv
 .venv\Scripts\Activate.ps1
 python -m pip install -r requirements.txt
@@ -58,7 +59,6 @@ On macOS/Linux, use `python3 -m venv .venv` and `source .venv/bin/activate`, the
 If PowerShell prevents activation scripts, the environment can be used directly. From the repository root:
 
 ```powershell
-cd source
 py -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
 .\.venv\Scripts\python.exe main.py
@@ -71,7 +71,6 @@ If `.venv` already exists, skip its creation. If you already use the project's `
 From the repository root:
 
 ```bash
-cd source
 python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install -r requirements.txt
@@ -80,7 +79,7 @@ python main.py
 
 ## Run
 
-With the environment activated, from `source`:
+With the environment activated, from the repository root:
 
 ```powershell
 python main.py
@@ -204,8 +203,8 @@ Each comparison contains one trial per selected algorithm. Its overall success c
 
 The supplied dataset contains **300 navigation scenarios**, with multiple representations for each scenario. The BARN library can list 600 occupancy maps across two families:
 
-- `source/data/dataset/grid_files/grid_i.npy`: raw occupancy grids.
-- `source/data/dataset/cspace_files/cspace_i.npy`: C-space occupancy grids.
+- `data/dataset/grid_files/grid_i.npy`: raw occupancy grids.
+- `data/dataset/cspace_files/cspace_i.npy`: C-space occupancy grids.
 
 For scenario indices 0-299, compatible binary NumPy maps are imported directly: `0 = free`, `1 = occupied`. The supplied maps are 30x30 `int64`; conversion preserves cell orientation and does not apply image preprocessing or additional obstacle inflation. Pick a map and click **Import BARN map**, or select another local root/family folder using **Dataset folder**.
 
@@ -215,7 +214,7 @@ Experiment records use `dataset_source=BARN` and identifiers such as `BARN/grid_
 
 ### Local dataset structure and supported files
 
-| Directory under `source/data/dataset/` | Contents | Application support |
+| Directory under `data/dataset/` | Contents | Application support |
 | --- | --- | --- |
 | `grid_files/` | 300 raw occupancy arrays, `grid_0.npy` to `grid_299.npy`. | Direct import. |
 | `cspace_files/` | 300 C-space occupancy arrays, `cspace_0.npy` to `cspace_299.npy`. | Direct import; no extra obstacle inflation. |
@@ -230,7 +229,7 @@ An imported cell becomes one logical grid cell. NumPy grids do not inherit the P
 
 ### Import workflow
 
-1. Open **BARN library**. The app catalogs `source/data/dataset` automatically if it exists.
+1. Open **BARN library**. The app catalogs `data/dataset` automatically if it exists.
 2. Use **Dataset folder** if your files are elsewhere. Select the dataset root or a `grid_files`/`cspace_files` folder directly.
 3. Select the map family and scenario in the map selector, then click **Import BARN map**.
 4. Inspect the grid, choose free start/goal cells, and run and compare algorithms using the same controls as custom grids.
@@ -240,7 +239,7 @@ Candidate filenames are discovered first and validated when imported. An invalid
 
 ## Experiment files
 
-- Automatic append-only history: **`source/data/experiments.csv`**, resolved relative to the application source location rather than the current working directory. It is created when a search or comparison is first successfully logged.
+- Automatic append-only history: **`data/experiments.csv`**, resolved relative to the application source location rather than the current working directory. It is created when a search or comparison is first successfully logged.
 - Manual CSV/JSON exports: the exact destination selected in the save dialog; there is no fixed export folder.
 - Records include UUID, UTC timestamp, map/source identifiers, grid dimensions, endpoints, algorithm/parameters, success/rate, length, cost, time, expansions, and frontier peak.
 - Cancelled or obsolete runs are not logged as completed trials. Logging errors remain visible while completed results stay inspectable/exportable.
@@ -252,30 +251,31 @@ Candidate filenames are discovered first and validated when imported. An invalid
 ```text
 README.md
 .gitignore
-source/
-  main.py                         # Entry point
-  requirements.txt
-  app/application.py              # Qt startup and independent page view models
-  models/                         # OccupancyGrid and SearchResult
-  services/
-    image_processing/             # Image loading, preprocessing, grid conversion
-    ai/                           # Five searches, validation, cancellation
-    evaluation/                   # Comparisons, experiment records, CSV/JSON storage
-    datasets/                     # Separate BARN importer
-  viewmodels/                     # QML state and background workers
-  views/main.qml                  # Application shell and page navigation
-  views/components/               # Reusable views, grid controls, comparison dialog
-  tests/                          # Unit, real-dataset, and offscreen Qt integration tests
-  data/maps/                      # Local example images
-  data/dataset/                   # Supplied BARN files
-  data/experiments.csv             # Generated experiment history
+main.py                           # Entry point
+requirements.txt
+app/application.py                # Qt startup and independent page view models
+models/                           # OccupancyGrid and SearchResult
+services/
+  image_processing/               # Image loading, preprocessing, grid conversion
+  ai/                             # Five searches, validation, cancellation
+  evaluation/                     # Comparisons, experiment records, CSV/JSON storage
+  datasets/                       # Separate BARN importer
+viewmodels/                       # QML state and background workers
+views/main.qml                    # Application shell and page navigation
+views/components/                 # Reusable views, grid controls, comparison dialog
+tests/                            # Unit, real-dataset, and offscreen Qt integration tests
+tools/capture_readme_run.py        # Repeat the documented runs and capture the real UI
+docs/experiments/2026-11-17/        # Screenshots, measured exports, and setup metadata
+data/maps/                        # Local example images
+data/dataset/                     # Supplied BARN files
+data/experiments.csv               # Generated experiment history
 ```
 
 Local `.prompts/` and `.prompt/` directories are ignored by Git. Keep course/development prompts locally rather than staging them.
 
 ## Testing
 
-From `source`, with dependencies installed:
+From the repository root, with dependencies installed:
 
 ```powershell
 python -m unittest discover -s tests -v
@@ -289,7 +289,7 @@ All 600 supplied BARN occupancy maps are validated with before/after file hashes
 
 ### Recorded validation
 
-The last recorded integration run on **2026-11-14** passed **70 tests**. Python bytecode compilation succeeded and `pip check` reported no broken requirements. The tested Windows environment used Python 3.13.12, PyQt6/Qt 6.12.0, opencv-python 5.0.0.93, and NumPy 2.5.4. These are recorded environment versions, not pinned dependency requirements or cross-platform test claims.
+The last recorded integration run on **2026-11-17** passed **72 tests**. Python bytecode compilation succeeded and `pip check` reported no broken requirements. The tested Windows environment used Python 3.13.12, PyQt6/Qt 6.12.0, opencv-python 5.0.0.93, and NumPy 2.5.4. These are recorded environment versions, not pinned dependency requirements or cross-platform test claims.
 
 The suite checks small and larger maps, malformed inputs, all-occupied grids, invalid endpoint types, occupied endpoints, unreachable goals, depth cutoffs, and start equal to goal at API level. It also checks that a Qt timer continues firing during background execution, cancellation does not log partial trials, map replacement rejects late results, and shutdown interrupts active workers. Layout tests cover 1080x720 to 3840x2160 windows. Test durations are not algorithm benchmark measurements.
 
@@ -308,7 +308,7 @@ These short routes verify interoperability and reproducibility. They do not esta
 
 | Symptom | What to check |
 | --- | --- |
-| `main.py` or `requirements.txt` cannot be found | The setup/run commands above assume you first entered the repository's `source` directory. |
+| `main.py` or `requirements.txt` cannot be found | Run the setup/run commands from the repository root, which contains both files. |
 | `ModuleNotFoundError` for PyQt6, cv2, or numpy | Activate the intended environment, or use its Python executable directly, and run `python -m pip install -r requirements.txt` with that same interpreter. |
 | PowerShell refuses `.venv\Scripts\Activate.ps1` | Use the activation-free Windows commands above. Changing the machine's execution policy is unnecessary. |
 | The app launches without a visible window | Check whether `QT_QPA_PLATFORM` was manually set to `offscreen`. That platform is intended for tests, not interactive use. Launch from a normal desktop session. |
@@ -321,20 +321,49 @@ These short routes verify interoperability and reproducibility. They do not esta
 | Search takes too long | Use Cancel, review the grid resolution/depth limit, and compare a smaller or less complex setup before increasing work. |
 | No BARN maps are listed | Select the root/family folder containing correctly named `grid_i.npy` or `cspace_i.npy` files for indices 0-299. Other dataset files are not occupancy candidates. |
 | Export refuses a filename | Existing files are intentionally protected. Choose a new name and a writable destination. |
-| Search succeeds but logging fails | Check access to `source/data/experiments.csv`, whether another program has locked it, and the existing CSV header. Current comparison results remain available for export to a new file. |
+| Search succeeds but logging fails | Check access to `data/experiments.csv`, whether another program has locked it, and the existing CSV header. Current comparison results remain available for export to a new file. |
 
 If a Qt platform-plugin or graphical-session error prevents startup, verify the environment's PyQt6 installation and launch from a desktop session. Offscreen automated tests do not validate every native dialog, display driver, or desktop-scaling configuration.
 
-## Suggested report screenshots
+## Application screenshots and test setup
 
-Capture real runs and retain their actual source maps/settings and exports:
+The actual Qt application was run on **2026-11-17** using its offscreen platform at 1600x1000. All five algorithms (BFS, DFS, DLS, IDS, UCS) were compared once on each map below; every returned path was checked for correct endpoints, free cells, adjacent moves, and matching length/cost. All comparisons used four-directional unit-cost movement and a DLS/IDS depth limit of **30**. Coordinates are zero-based `(row, column)`.
 
-1. **Custom-image preparation:** original image, binary preview, generated grid, and preprocessing/resolution settings.
-2. **Successful search:** visible S/G markers, red path, explored cells, selected algorithm, and measured metrics.
-3. **Depth behavior:** DLS with an insufficient bound, followed by a sufficient DLS/IDS bound on the same endpoints.
-4. **Algorithm comparison:** all five genuine result rows, timing chart, shared map identifier, and timing-variability notice.
-5. **Unreachable goal:** no route and N/A path metrics in the comparison table.
-6. **BARN library:** a real imported raw/C-space map with its identifier, the single grid viewer, and search controls/results.
+| Page | Source map | Grid | Start | Goal | Results |
+| --- | --- | --- | --- | --- | --- |
+| Custom images | `data/maps/map_1.png` | 20x20 | `(10, 4)` | `(4, 15)` | 5/5 found a route; [CSV](docs/experiments/2026-11-17/custom-comparison.csv), [JSON](docs/experiments/2026-11-17/custom-comparison.json) |
+| BARN library (raw) | `data/dataset/grid_files/grid_0.npy` | 30x30 | `(3, 3)` | `(10, 10)` | 5/5 found a route; [CSV](docs/experiments/2026-11-17-barn/barn-comparison.csv), [JSON](docs/experiments/2026-11-17-barn/barn-comparison.json) |
+| BARN library (C-space) | `data/dataset/cspace_files/cspace_0.npy` | 30x30 | `(5, 8)` | `(15, 22)` | 5/5 found a route; [CSV](docs/experiments/2026-11-17-barn/barn-cspace-comparison.csv), [JSON](docs/experiments/2026-11-17-barn/barn-cspace-comparison.json) |
+
+The custom map used default Otsu preprocessing, dark obstacles, no morphology, **64-pixel cells**, and a **50% obstacle threshold**. These settings produce a coarse image-derived grid; the route validates that grid rather than physical robot clearance in the photograph. Screenshots show the BFS route with explored cells enabled.
+
+**Custom images page**
+
+![Custom images page showing map_1.png, its binary preview, and the 17-move BFS route](docs/experiments/2026-11-17/custom-images.png)
+
+**BARN library: raw map and comparison**
+
+![BARN library page showing grid_0 and the 14-move BFS route](docs/experiments/2026-11-17-barn/barn-library.png)
+
+![All five algorithm results and timing chart for the raw BARN grid_0 map](docs/experiments/2026-11-17-barn/barn-comparison.png)
+
+**BARN library: C-space map and comparison**
+
+![BARN library page showing cspace_0 and the 24-move BFS route](docs/experiments/2026-11-17-barn/barn-cspace-library.png)
+
+![All five algorithm results and timing chart for the BARN cspace_0 map](docs/experiments/2026-11-17-barn/barn-cspace-comparison.png)
+
+The raw and C-space maps use separate valid endpoints; compare algorithms within each map rather than treating their timings as a controlled comparison between map representations. C-space is imported as supplied, without additional obstacle inflation.
+
+## Short comparison analysis
+
+On `map_1.png`, all five algorithms succeeded: BFS, UCS, and IDS found 17-move routes, compared with DFS's 45 and DLS's 29. BFS and UCS each expanded 211 nodes, while DLS expanded 913 and IDS 3,710; their measured times were 1.236, 1.924, 11.227, and 36.297 ms respectively (DFS: 2.051 ms). On BARN `grid_0`, BFS/UCS/IDS found 14-move routes versus DFS's 108 and DLS's 30; on `cspace_0`, they found 24-move routes versus DFS's 56 and DLS's 30. All five succeeded on both BARN maps. BFS/UCS offered short paths with fewer expansions than IDS on these inputs; these single trials do not establish a general timing ranking.
+
+![Actual algorithm comparison dialog with all five results and timing chart for map_1.png](docs/experiments/2026-11-17/algorithm-comparison.png)
+
+## Plans to improve and Reproductiblity
+
+Planned improvements include repeated trials with mean/standard-deviation reporting, more maps and unreachable-goal cases, A* search, and robot-clearance-aware grid generation. To reproduce these comparisons, install the recorded dependency versions above and run `python tools/capture_readme_run.py --output docs/experiments/repeat-run` from the repository root, choosing a new output directory each time. The script launches the real Qt interface offscreen, applies the exact maps, settings, endpoints, algorithm order, and depth limit above, validates all paths, and saves screenshots and CSV/JSON results for the custom image and both BARN map families; add `--desktop` to show its window. Setup metadata for the [original run](docs/experiments/2026-11-17/setup.json) and [extended BARN run](docs/experiments/2026-11-17-barn/setup.json) records source-map SHA-256 hashes and environment versions; timings and run identifiers will vary between executions.
 
 ## Known limitations
 

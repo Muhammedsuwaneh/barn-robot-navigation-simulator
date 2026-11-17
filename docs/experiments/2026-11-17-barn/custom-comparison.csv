@@ -1,0 +1,6 @@
+record_id,timestamp_utc,map_identifier,dataset_source,grid_rows,grid_columns,start_row,start_column,goal_row,goal_column,algorithm,parameters,success,success_rate,path_length,path_cost,execution_time_ms,nodes_expanded,peak_frontier_size
+ee101b56-ddb8-4d49-95b7-20c789643e19,2026-11-17T09:34:20.573802+00:00,map_1,local_image,20,20,10,4,4,15,BFS,{},True,1.0,17,17,4.6544,211,20
+ff22ab03-99ba-4439-b201-82668b577c76,2026-11-17T09:34:20.577829+00:00,map_1,local_image,20,20,10,4,4,15,DFS,{},True,1.0,45,45,3.5144,211,66
+bd2812a6-f0f9-42ae-96d4-0abb3b71d6a3,2026-11-17T09:34:20.595991+00:00,map_1,local_image,20,20,10,4,4,15,DLS,"{""max_depth"": 30}",True,1.0,29,29,17.9728,913,39
+d4ffcba2-5d9e-4701-98f8-3488907bab31,2026-11-17T09:34:20.661325+00:00,map_1,local_image,20,20,10,4,4,15,IDS,"{""max_depth"": 30}",True,1.0,17,17,65.1496,3710,27
+8362cbea-03c3-4381-83f7-4a21c328da84,2026-11-17T09:34:20.663116+00:00,map_1,local_image,20,20,10,4,4,15,UCS,{},True,1.0,17,17,1.6572,211,20

@@ -1,0 +1,63 @@
+{
+  "python": "3.13.12",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "opencv": "5.0.0",
+  "numpy": "2.5.4",
+  "pyqt": "6.12.0",
+  "qt": "6.12.0",
+  "qt_platform": "offscreen",
+  "movement": "Up, Down, Left, Right; unit costs",
+  "custom_processing": {
+    "otsu": true,
+    "adaptive": false,
+    "morphology": "none",
+    "light_pixels_are_obstacles": false,
+    "cell_size_px": 64,
+    "obstacle_threshold_percent": 50
+  },
+  "depth_limit": 30,
+  "maps": {
+    "custom": {
+      "source": "data/maps/map_1.png",
+      "sha256": "26228ec9d6fb771bb425eb6d3b2abb76c118233a18b124717871676832d90087",
+      "start": [
+        10,
+        4
+      ],
+      "goal": [
+        4,
+        15
+      ],
+      "grid_rows": 20,
+      "grid_columns": 20
+    },
+    "barn": {
+      "source": "data/dataset/grid_files/grid_0.npy",
+      "sha256": "d752857b8f82e049637eb2aa3191243a5f520350cef1cb5aa1d32bd1a4e2fd0f",
+      "start": [
+        3,
+        3
+      ],
+      "goal": [
+        10,
+        10
+      ],
+      "grid_rows": 30,
+      "grid_columns": 30
+    },
+    "barn-cspace": {
+      "source": "data/dataset/cspace_files/cspace_0.npy",
+      "sha256": "039a1db001c68e2915f7c51b62a53bcd936afa226f18479d49846dd5c86ee9c3",
+      "start": [
+        5,
+        8
+      ],
+      "goal": [
+        15,
+        22
+      ],
+      "grid_rows": 30,
+      "grid_columns": 30
+    }
+  }
+}
