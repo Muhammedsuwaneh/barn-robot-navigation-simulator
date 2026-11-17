@@ -295,6 +295,7 @@ ApplicationWindow {
     FileDialog {
         id: imageDialog
         title: "Select an environment image"
+        currentFolder: Qt.resolvedUrl("../data/maps/")
         fileMode: FileDialog.OpenFile
         nameFilters: ["Image files (*.png *.jpg *.jpeg)", "PNG images (*.png)", "JPEG images (*.jpg *.jpeg)"]
         onAccepted: window.navigationViewModel.loadImage(selectedFile.toString())
