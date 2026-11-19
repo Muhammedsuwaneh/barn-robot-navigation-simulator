@@ -3,8 +3,7 @@ import sys
 from pathlib import Path
 from typing import Sequence
 
-from PyQt6.QtCore import QSize, QUrl
-from PyQt6.QtGui import QGuiApplication, QWindow
+from PyQt6.QtCore import QSize, QUrlsay
 from PyQt6.QtQml import QQmlApplicationEngine
 
 from viewmodels.navigation_view_model import NavigationViewModel
@@ -34,8 +33,8 @@ def _fill_available_desktop(window: QWindow) -> None:
 	follow_screen(window.screen())
 
 
-def create_application(argv: Sequence[str] | None = None,
-) -> tuple[QGuiApplication, QQmlApplicationEngine, NavigationViewModel]:
+def create_application(argv: Sequence[str] | None = None,) -> tuple[QGuiApplication, QQmlApplicationEngine, NavigationViewModel]:
+	
 	os.environ.setdefault("QT_QUICK_CONTROLS_STYLE", "Basic")
 	application = QGuiApplication(list(argv) if argv is not None else sys.argv)
 	application.setApplicationName("AI Robot Navigation Simulator")
